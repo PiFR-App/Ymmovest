@@ -113,9 +113,9 @@ Voici les points à surveiller :
 | **Interface utilisateur / UX complexe**             | Beaucoup de données financières, de scénarios – rendre ça simple et visuel sera crucial.                                                                                                                                                 |
 | **Fiabilité des taux & conditions de crédit réels** | Le taux moyen de la Banque de France est un indicateur, mais les banques appliquent des conditions selon le dossier (apport, profil). Il faudra afficher des marges d’erreur ou des fourchettes.                                         |
 
-[1]: https://www.data.gouv.fr/es/dataservices/api-dvf/?utm_source=chatgpt.com "API DVF + - Trouvez les valeurs de ventes et + encore - Data Gouv"
-[2]: https://datafoncier.cerema.fr/donnees/autres-donnees-foncieres/dvfplus-open-data?utm_source=chatgpt.com "DVF+ open-data - Données foncières - Datafoncier - Cerema"
-[3]: https://www.data.gouv.fr/reuses/barometre-des-prix-au-m2-et-estimation-immobiliere/?utm_source=chatgpt.com "Baromètre des prix au m² et estimation immobilière - Data.gouv"
-[4]: https://webstat.banque-france.fr/fr/pages/guide-migration-api/?utm_source=chatgpt.com "Guide de l'API Webstat - Banque de France"
-[5]: https://webstat.banque-france.fr/fr/catalogue/mir1/MIR1.Q.FR.R.A22FRF.R.R.A.2254FR.EUR.N?utm_source=chatgpt.com "Taux effectif moyen des prêts immobiliers à taux fixe accordés aux ..."
-[6]: https://www.eloa.io/opencredits?utm_source=chatgpt.com "L'API de comparaison d'offres de prêts bancaires | OpenCrédits - Eloa"
+[1]: https://www.data.gouv.fr/es/dataservices/api-dvf "API DVF + - Trouvez les valeurs de ventes et + encore - Data Gouv"
+[2]: https://datafoncier.cerema.fr/donnees/autres-donnees-foncieres/dvfplus-open-data"DVF+ open-data - Données foncières - Datafoncier - Cerema"
+[3]: https://www.data.gouv.fr/reuses/barometre-des-prix-au-m2-et-estimation-immobiliere "Baromètre des prix au m² et estimation immobilière - Data.gouv"
+[4]: https://webstat.banque-france.fr/fr/pages/guide-migration-api "Guide de l'API Webstat - Banque de France"
+[5]: https://webstat.banque-france.fr/fr/catalogue/mir1/MIR1.Q.FR.R.A22FRF.R.R.A.2254FR.EUR.N"Taux effectif moyen des prêts immobiliers à taux fixe accordés aux ..."
+[6]: https://www.eloa.io/opencredits"L'API de comparaison d'offres de prêts bancaires | OpenCrédits - Eloa"
