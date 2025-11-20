@@ -24,7 +24,8 @@ import {
   SquareFoot,
   Euro,
 } from "@mui/icons-material";
-import { searchCommunes, CommuneData } from "../data/prix-communes";
+import { CommuneData } from "../types";
+import { searchCommunes } from "../services/api";
 import { useSimulation } from "../contexts/SimulationContext";
 
 export function Home() {
@@ -35,11 +36,15 @@ export function Home() {
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<CommuneData[]>([]);
 
-  const handleInputChange = (_: any, newInputValue: string) => {
+  const handleInputChange = async (_: any, newInputValue: string) => {
     setInputValue(newInputValue);
     if (newInputValue.length >= 2) {
-      const results = searchCommunes(newInputValue);
-      setOptions(results);
+      try {
+        const results = await searchCommunes(newInputValue);
+        setOptions(results || []);
+      } catch (err) {
+        setOptions([]);
+      }
     } else {
       setOptions([]);
     }
@@ -54,22 +59,29 @@ export function Home() {
     }
   };
 
-  const handleExemple = () => {
+  const handleExemple = async () => {
     // Paris 11e, 65m²
-    const exempleParis = searchCommunes("Paris 11")[0];
-    if (exempleParis) {
-      setCommune(exempleParis);
-      setInputValue(exempleParis.nom);
-      setSurface("65");
-      const prixBien = exempleParis.prixM2Median * 65;
-      setSimulationData({ commune: exempleParis, surface: 65, prixBien });
-      setTimeout(() => navigate("/dashboard"), 300);
+    try {
+      const res = await searchCommunes("Paris 11");
+      const exempleParis = res?.[0];
+
+      if (exempleParis) {
+        setCommune(exempleParis);
+        setInputValue(exempleParis.nom);
+        setSurface("65");
+        const prixBien = exempleParis.prixM2Median * 65;
+        setSimulationData({ commune: exempleParis, surface: 65, prixBien });
+        setTimeout(() => navigate("/dashboard"), 300);
+      }
+    } catch (e) {
+      // ignore
     }
   };
 
-  const prixEstime = commune && surface && parseFloat(surface) > 0
-    ? Math.round(commune.prixM2Median * parseFloat(surface))
-    : null;
+  const prixEstime =
+    commune && surface && parseFloat(surface) > 0
+      ? Math.round(commune.prixM2Median * parseFloat(surface))
+      : null;
 
   const features = [
     {
@@ -161,7 +173,7 @@ export function Home() {
                 <Stack spacing={3}>
                   <Autocomplete
                     options={options}
-                    getOptionLabel={(option) => 
+                    getOptionLabel={(option) =>
                       `${option.nom} (${option.codePostal})`
                     }
                     value={commune}
@@ -195,26 +207,41 @@ export function Home() {
                     )}
                     renderOption={(props, option) => (
                       <Box component="li" {...props}>
-                        <Stack direction="row" justifyContent="space-between" width="100%">
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          width="100%"
+                        >
                           <Stack>
                             <Typography variant="body1">
                               {option.nom}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {option.codePostal} • {option.nombreTransactions} transactions
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {option.codePostal} • {option.nombreTransactions}{" "}
+                              transactions
                             </Typography>
                           </Stack>
                           <Stack alignItems="flex-end">
-                            <Typography variant="body2" sx={{ color: "secondary.main" }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "secondary.main" }}
+                            >
                               {option.prixM2Median.toLocaleString()} €/m²
                             </Typography>
-                            <Typography 
-                              variant="caption" 
-                              sx={{ 
-                                color: option.evolution1An >= 0 ? "success.main" : "error.main" 
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color:
+                                  option.evolution1An >= 0
+                                    ? "success.main"
+                                    : "error.main",
                               }}
                             >
-                              {option.evolution1An >= 0 ? "+" : ""}{option.evolution1An}% / an
+                              {option.evolution1An >= 0 ? "+" : ""}
+                              {option.evolution1An}% / an
                             </Typography>
                           </Stack>
                         </Stack>
@@ -256,8 +283,8 @@ export function Home() {
                   />
 
                   {commune && prixEstime && (
-                    <Alert 
-                      severity="info" 
+                    <Alert
+                      severity="info"
                       icon={<Euro />}
                       sx={{
                         bgcolor: (theme) =>
@@ -279,7 +306,8 @@ export function Home() {
                           </span>
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          Basé sur {commune.prixM2Median.toLocaleString()} €/m² × {surface} m²
+                          Basé sur {commune.prixM2Median.toLocaleString()} €/m²
+                          × {surface} m²
                           {" • "}
                           {commune.nombreTransactions} transactions enregistrées
                         </Typography>
@@ -298,7 +326,9 @@ export function Home() {
                       size="large"
                       color="secondary"
                       startIcon={<Search />}
-                      disabled={!commune || !surface || parseFloat(surface) <= 0}
+                      disabled={
+                        !commune || !surface || parseFloat(surface) <= 0
+                      }
                       fullWidth
                       sx={{
                         py: 1.5,
@@ -373,20 +403,23 @@ export function Home() {
               justifyContent="center"
               flexWrap="wrap"
             >
-              {["Particuliers", "Agents immobiliers", "Courtiers", "Investisseurs"].map(
-                (tag) => (
-                  <Chip
-                    key={tag}
-                    label={tag}
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      borderColor: "divider",
-                      color: "text.secondary",
-                    }}
-                  />
-                )
-              )}
+              {[
+                "Particuliers",
+                "Agents immobiliers",
+                "Courtiers",
+                "Investisseurs",
+              ].map((tag) => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    borderColor: "divider",
+                    color: "text.secondary",
+                  }}
+                />
+              ))}
             </Stack>
           </Box>
         </div>

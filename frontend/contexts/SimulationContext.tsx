@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { CommuneData } from "../data/prix-communes";
+import { CommuneData } from "../types";
 
 export interface SimulationData {
   commune: CommuneData;

@@ -1,6 +1,17 @@
 // Types centralisés pour l'application Ymmovest
 
-export type { CommuneData } from "../data/prix-communes";
+export interface CommuneData {
+  id?: number;
+  code: string;
+  nom: string;
+  codePostal: string;
+  prixM2Median: number;
+  prixM2Min: number;
+  prixM2Max: number;
+  evolution1An: number; // en %
+  nombreTransactions: number;
+  loyerM2Median: number;
+}
 export type { SimulationData } from "../contexts/SimulationContext";
 export type {
   TauxCreditData,

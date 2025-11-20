@@ -14,7 +14,7 @@ services:
   backend:
     build: ./backend
     environment:
-      - DATABASE_URL=postgres://user:pass@db:5432/database
+      - DATABASE_URL=postgres://root:1234@db:5432/database
       - REDIS_URL=redis://cache:6379
       - NODE_ENV=production
     ports:

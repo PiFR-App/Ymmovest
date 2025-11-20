@@ -1,5 +1,5 @@
 // Service mock qui simule les appels aux APIs publiques françaises, étant restreintes nous avons simulé un jeu de données.
-import { CommuneData } from "../data/prix-communes";
+import { CommuneData } from "../types";
 
 // Simule l'API Webstat de la Banque de France pour les taux de crédit immobilier
 export interface TauxCreditData {

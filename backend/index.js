@@ -1,17 +1,138 @@
-const express = require('express');
+const express = require("express");
+const cors = require('cors');
+const { Pool } = require('pg');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-
-app.get('/', (req, res) => {
-    res.json({ message: 'Backend API is running' });
-});
-
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
+app.use(cors());
 
 app.listen(PORT, () => {
-    console.log(`Backend server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
+});
+
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+
+app.get("/", (req, res) => {
+  res.json({ message: "Backend API is running" });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.get("/health", async (req, res) => {
+  try {
+    await pool.query("SELECT 1");
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ status: "error", error: err.message });
+  }
+});
+
+// Search communes by name / codepostal / code
+app.get("/api/communes", async (req, res) => {
+  const q = (req.query.q || "").toString();
+  if (!q || q.length < 1) return res.json([]);
+
+  const search = `%${q}%`;
+  try {
+    const result = await pool.query(
+      `SELECT id, code, nom, "codepostal", prixM2Median::float, prixM2Min::float, prixM2Max::float, evolution1An::float, nombreTransactions, loyerM2Median::float
+             FROM prix_communes
+             WHERE nom ILIKE $1 OR "codepostal" ILIKE $2 OR code ILIKE $3
+             ORDER BY nombreTransactions DESC
+             LIMIT 8`,
+      [search, search, search]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "query error", error: err.message });
+  }
+});
+
+app.get("/api/communes/:code", async (req, res) => {
+  const code = req.params.code;
+  try {
+    const result = await pool.query(
+      `SELECT id, code, nom, "codepostal", prixM2Median::float, prixM2Min::float, prixM2Max::float, evolution1An::float, nombreTransactions, loyerM2Median::float
+             FROM prix_communes WHERE code = $1 LIMIT 1`,
+      [code]
+    );
+    if (!result.rows.length)
+      return res.status(404).json({ message: "Commune not found" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "query error", error: err.message });
+  }
+});
+
+app.get("/api/communes/:code/stats", async (req, res) => {
+  const code = req.params.code;
+  const typeBien = (req.query.type || "appartement").toString();
+  try {
+    const result = await pool.query(
+      `SELECT prixM2Median::float, prixM2Min::float, prixM2Max::float, evolution1An::float, nombreTransactions, loyerM2Median::float
+             FROM prix_communes WHERE code = $1 LIMIT 1`,
+      [code]
+    );
+    if (!result.rows.length)
+      return res.status(404).json({ message: "Commune not found" });
+    const c = result.rows[0];
+    const facteurType = typeBien === "maison" ? 0.85 : 1;
+    const stats = {
+      prixMoyenM2: Math.round(c.prixm2median * facteurType),
+      nombreVentes:
+        c.nombredtransactions || c.nombredtransactions === 0
+          ? c.nombredtransactions
+          : c.nombretransactions,
+      prixMin: Math.round(c.prixm2min * facteurType),
+      prixMax: Math.round(c.prixm2max * facteurType),
+      surfaceMoyenne: typeBien === "maison" ? 95 : 58,
+      evolution1An: Number(c.evolution1an),
+    };
+    // Normalize property names in case Postgres returned lowercased keys
+    // Some drivers map column names to lowercase; ensure we read correct fields
+    // but we already cast using ::float so names may be as in SQL.
+    res.json(stats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "query error", error: err.message });
+  }
+});
+
+app.get("/api/communes/:code/loyer", async (req, res) => {
+  const code = req.params.code;
+  const surface = parseFloat((req.query.surface || "0").toString()) || 0;
+  try {
+    const result = await pool.query(
+      `SELECT prixM2Median::float, loyerM2Median::float FROM prix_communes WHERE code = $1 LIMIT 1`,
+      [code]
+    );
+    if (!result.rows.length)
+      return res.status(404).json({ message: "Commune not found" });
+    const c = result.rows[0];
+    const loyerM2 = Number(
+      c.loyerm2median || c.loyerm2median === 0
+        ? c.loyerm2median
+        : c.loyerm2median
+    );
+    const loyerMensuelMedian = Math.round(loyerM2 * surface);
+    const response = {
+      loyerMensuelMin: Math.round(loyerMensuelMedian * 0.85),
+      loyerMensuelMedian,
+      loyerMensuelMax: Math.round(loyerMensuelMedian * 1.15),
+      rendementBrutEstime:
+        ((loyerM2 * 12) / Number(c.prixm2median || c.prixm2median)) * 100,
+      source: "Base locale Postgres",
+    };
+    res.json(response);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "query error", error: err.message });
+  }
 });
