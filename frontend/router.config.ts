@@ -1,8 +1,6 @@
 // Configuration avancée du router React Router v7
 // Ce fichier peut être utilisé pour personnaliser le comportement du router
 
-import type { Router } from "@remix-run/router";
-
 export const routerConfig = {
   // Configuration du comportement du scroll
   future: {

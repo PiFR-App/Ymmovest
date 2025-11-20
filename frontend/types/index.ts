@@ -6,5 +6,5 @@ export type {
   TauxCreditData,
   LoyerEstime,
   ChargesEstimees,
-  ProjectionAnnee,
+  ProjectionAnnuelle,
 } from "../services/api-mock";

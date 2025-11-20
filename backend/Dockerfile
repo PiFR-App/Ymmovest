@@ -1,10 +1,8 @@
-FROM node:20-alpine
+FROM node:22.21.0-alpine3.21
 WORKDIR /app
-ENV NODE_ENV=production
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 COPY . .
-ENV PORT=5000
 EXPOSE 5000
 # Attendu: un script "start" dans package.json (ex: node server.js)
 CMD ["npm","start"]
