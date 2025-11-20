@@ -40,10 +40,10 @@ app.get("/api/communes", async (req, res) => {
   const search = `%${q}%`;
   try {
     const result = await pool.query(
-      `SELECT id, code, nom, "codepostal", prixM2Median::float, prixM2Min::float, prixM2Max::float, evolution1An::float, nombreTransactions, loyerM2Median::float
+      `SELECT id, code, nom, codepostal as "codePostal", prixm2median::float as "prixM2Median", prixm2min::float as "prixM2Min", prixm2max::float as "prixM2Max", evolution1an::float as "evolution1An", nombretransactions as "nombreTransactions", loyerm2median::float as "loyerM2Median"
              FROM prix_communes
-             WHERE nom ILIKE $1 OR "codepostal" ILIKE $2 OR code ILIKE $3
-             ORDER BY nombreTransactions DESC
+             WHERE nom ILIKE $1 OR codepostal ILIKE $2 OR code ILIKE $3
+             ORDER BY nombretransactions DESC
              LIMIT 8`,
       [search, search, search]
     );
@@ -58,7 +58,7 @@ app.get("/api/communes/:code", async (req, res) => {
   const code = req.params.code;
   try {
     const result = await pool.query(
-      `SELECT id, code, nom, "codepostal", prixM2Median::float, prixM2Min::float, prixM2Max::float, evolution1An::float, nombreTransactions, loyerM2Median::float
+      `SELECT id, code, nom, codepostal as "codePostal", prixm2median::float as "prixM2Median", prixm2min::float as "prixM2Min", prixm2max::float as "prixM2Max", evolution1an::float as "evolution1An", nombretransactions as "nombreTransactions", loyerm2median::float as "loyerM2Median"
              FROM prix_communes WHERE code = $1 LIMIT 1`,
       [code]
     );
@@ -76,7 +76,7 @@ app.get("/api/communes/:code/stats", async (req, res) => {
   const typeBien = (req.query.type || "appartement").toString();
   try {
     const result = await pool.query(
-      `SELECT prixM2Median::float, prixM2Min::float, prixM2Max::float, evolution1An::float, nombreTransactions, loyerM2Median::float
+      `SELECT prixm2median::float as "prixM2Median", prixm2min::float as "prixM2Min", prixm2max::float as "prixM2Max", evolution1an::float as "evolution1An", nombretransactions as "nombreTransactions", loyerm2median::float as "loyerM2Median"
              FROM prix_communes WHERE code = $1 LIMIT 1`,
       [code]
     );
@@ -85,15 +85,12 @@ app.get("/api/communes/:code/stats", async (req, res) => {
     const c = result.rows[0];
     const facteurType = typeBien === "maison" ? 0.85 : 1;
     const stats = {
-      prixMoyenM2: Math.round(c.prixm2median * facteurType),
-      nombreVentes:
-        c.nombredtransactions || c.nombredtransactions === 0
-          ? c.nombredtransactions
-          : c.nombretransactions,
-      prixMin: Math.round(c.prixm2min * facteurType),
-      prixMax: Math.round(c.prixm2max * facteurType),
+      prixMoyenM2: Math.round(c.prixM2Median * facteurType),
+      nombreVentes: c.nombreTransactions,
+      prixMin: Math.round(c.prixM2Min * facteurType),
+      prixMax: Math.round(c.prixM2Max * facteurType),
       surfaceMoyenne: typeBien === "maison" ? 95 : 58,
-      evolution1An: Number(c.evolution1an),
+      evolution1An: Number(c.evolution1An),
     };
     // Normalize property names in case Postgres returned lowercased keys
     // Some drivers map column names to lowercase; ensure we read correct fields
@@ -110,24 +107,20 @@ app.get("/api/communes/:code/loyer", async (req, res) => {
   const surface = parseFloat((req.query.surface || "0").toString()) || 0;
   try {
     const result = await pool.query(
-      `SELECT prixM2Median::float, loyerM2Median::float FROM prix_communes WHERE code = $1 LIMIT 1`,
+      `SELECT prixm2median::float as "prixM2Median", loyerm2median::float as "loyerM2Median" FROM prix_communes WHERE code = $1 LIMIT 1`,
       [code]
     );
     if (!result.rows.length)
       return res.status(404).json({ message: "Commune not found" });
     const c = result.rows[0];
-    const loyerM2 = Number(
-      c.loyerm2median || c.loyerm2median === 0
-        ? c.loyerm2median
-        : c.loyerm2median
-    );
+    const loyerM2 = Number(c.loyerM2Median || 0);
     const loyerMensuelMedian = Math.round(loyerM2 * surface);
     const response = {
       loyerMensuelMin: Math.round(loyerMensuelMedian * 0.85),
       loyerMensuelMedian,
       loyerMensuelMax: Math.round(loyerMensuelMedian * 1.15),
       rendementBrutEstime:
-        ((loyerM2 * 12) / Number(c.prixm2median || c.prixm2median)) * 100,
+        ((loyerM2 * 12) / Number(c.prixM2Median || 1)) * 100,
       source: "Base locale Postgres",
     };
     res.json(response);
