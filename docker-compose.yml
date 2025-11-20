@@ -2,8 +2,6 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend_service
-    ports:
-      - "5173:5173"
     restart: unless-stopped
     networks:
       - app_network
@@ -27,8 +25,6 @@ services:
       - DATABASE_URL=postgres://root:1234@db:5432/database
       - REDIS_URL=redis://cache:6379
       - NODE_ENV=production
-    ports:
-      - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
