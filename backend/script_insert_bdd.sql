@@ -1,43 +1,58 @@
 DROP TABLE IF EXISTS prix_communes;
 
 CREATE TABLE prix_communes (
-    id SERIAL PRIMARY KEY,code VARCHAR(10), NOT NULL;
-    nom VARCHAR(255), NOT NULL;
-    codePostal VARCHAR(10), NOT NULL;
-    prixM2Median NUMERIC(10), NOT NULL;
-    prixM2Min NUMERIC(10), NOT NULL;
-    prixM2Max NUMERIC(10), NOT NULL;
-    evolution1An NUMERIC(5,2), NOT NULL;
-    nombreTransactions NUMERIC(10), NOT NULL;
-    loyerM2Median NUMERIC(10), NOT NULL;
-),;
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(10) NOT NULL,
+    nom VARCHAR(255) NOT NULL,
+    codePostal VARCHAR(10) NOT NULL,
+    prixM2Median NUMERIC(10,2) NOT NULL,
+    prixM2Min NUMERIC(10,2) NOT NULL,
+    prixM2Max NUMERIC(10,2) NOT NULL,
+    evolution1An NUMERIC(5,2) NOT NULL,
+    nombreTransactions INTEGER NOT NULL,
+    loyerM2Median NUMERIC(10,2) NOT NULL
+);
 
-INSERT INTO prix_communes (code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median), VALUES
-  ("75056","Paris","75000",10500,8000,15000,3.2,12543,28),
-  ("75101","Paris 1er","75001",12800,10000,18000,2.8,245,32),
-  ("75108","Paris 8e","75008",13500,11000,20000,2.5,324,34),
-  ("75111","Paris 11e","75011",10200,8500,13500,4.1,678,27),
-  ("75118","Paris 18e","75018",8900,7000,12000,5.2,892,24),
+-- Create user if not exists (safe when running multiple times)
+DO $$
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'ymmovest_user') THEN
+      CREATE USER ymmovest_user WITH PASSWORD 'secure_password';
+   END IF;
+END
+$$;
 
-  ("92024","Boulogne-Billancourt","92100",8500,6500,11000,3.8,1234,23),
-  ("92050","Neuilly-sur-Seine","92200",11200,9000,15000,2.1,456,29),
-  ("94028","Créteil","94000",4200,3200,5500,4.5,789,14),
-  ("93066","Saint-Denis","93200",3800,2800,5200,6.2,1123,13),
-  ("78646","Versailles","78000",6500,5000,9000,3.5,567,18),
+GRANT ALL PRIVILEGES ON TABLE prix_communes TO ymmovest_user;
 
-  ("13055","Marseille","13000",3500,2200,5500,5.8,3456,12),
-  ("69123","Lyon","69000",5200,3800,7500,4.2,2345,15),
-  ("31555","Toulouse","31000",3800,2800,5200,6.5,2123,13),
-  ("06088","Nice","06000",4900,3500,7500,3.9,1567,16),
-  ("44109","Nantes","44000",4100,3000,5800,5.2,1789,14),
-  ("33063","Bordeaux","33000",5000,3500,7000,4.8,1923,15),
-  ("67482","Strasbourg","67000",3400,2500,4800,4.1,1234,12),
-  ("59350","Lille","59000",3600,2600,5000,5.5,1678,13),
-  ("35238","Rennes","35000",3900,2900,5400,6.1,1456,13),
-  ("34172","Montpellier","34000",4200,3100,6000,5.3,1567,14),
+-- Grant usage on the sequence backing the serial column (sequence name is deterministic)
+-- If the sequence name differs, run: SELECT pg_get_serial_sequence('prix_communes','id');
+GRANT USAGE, SELECT ON SEQUENCE prix_communes_id_seq TO ymmovest_user;
 
-  ("21231","Dijon","21000",2800,2000,4000,4.2,789,11),
-  ("51108","Reims","51100",2400,1800,3500,4.8,567,10),
-  ("76540","Rouen","76000",2600,1900,3800,4.5,678,11),
-  ("37261","Tours","37000",2900,2100,4200,5.1,734,11),
-  ("25056","Besançon","25000",2300,1700,3300,3.9,456,10);
+BEGIN;
+INSERT INTO prix_communes (code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median) VALUES
+  ('75056','Paris','75000',10500,8000,15000,3.2,12543,28),
+  ('75101','Paris 1er','75001',12800,10000,18000,2.8,245,32),
+  ('75108','Paris 8e','75008',13500,11000,20000,2.5,324,34),
+  ('75111','Paris 11e','75011',10200,8500,13500,4.1,678,27),
+  ('75118','Paris 18e','75018',8900,7000,12000,5.2,892,24),
+  ('92024','Boulogne-Billancourt','92100',8500,6500,11000,3.8,1234,23),
+  ('92050','Neuilly-sur-Seine','92200',11200,9000,15000,2.1,456,29),
+  ('94028','Créteil','94000',4200,3200,5500,4.5,789,14),
+  ('93066','Saint-Denis','93200',3800,2800,5200,6.2,1123,13),
+  ('78646','Versailles','78000',6500,5000,9000,3.5,567,18),
+  ('13055','Marseille','13000',3500,2200,5500,5.8,3456,12),
+  ('69123','Lyon','69000',5200,3800,7500,4.2,2345,15),
+  ('31555','Toulouse','31000',3800,2800,5200,6.5,2123,13),
+  ('06088','Nice','06000',4900,3500,7500,3.9,1567,16),
+  ('44109','Nantes','44000',4100,3000,5800,5.2,1789,14),
+  ('33063','Bordeaux','33000',5000,3500,7000,4.8,1923,15),
+  ('67482','Strasbourg','67000',3400,2500,4800,4.1,1234,12),
+  ('59350','Lille','59000',3600,2600,5000,5.5,1678,13),
+  ('35238','Rennes','35000',3900,2900,5400,6.1,1456,13),
+  ('34172','Montpellier','34000',4200,3100,6000,5.3,1567,14),
+  ('21231','Dijon','21000',2800,2000,4000,4.2,789,11),
+  ('51108','Reims','51100',2400,1800,3500,4.8,567,10),
+  ('76540','Rouen','76000',2600,1900,3800,4.5,678,11),
+  ('37261','Tours','37000',2900,2100,4200,5.1,734,11),
+  ('25056','Besançon','25000',2300,1700,3300,3.9,456,10);
+COMMIT;

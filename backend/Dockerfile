@@ -5,5 +5,4 @@ RUN npm i
 RUN npm ci
 COPY . .
 EXPOSE 5000
-# Attendu: un script "start" dans package.json (ex: node server.js)
 CMD ["npm","start"]

@@ -1,6 +1,4 @@
-// Service mock qui simule les appels aux APIs publiques françaises
-// En production, ces fonctions feraient de vrais appels API via Supabase Edge Functions
-
+// Service mock qui simule les appels aux APIs publiques françaises, étant restreintes nous avons simulé un jeu de données.
 import { CommuneData } from "../data/prix-communes";
 
 // Simule l'API Webstat de la Banque de France pour les taux de crédit immobilier
