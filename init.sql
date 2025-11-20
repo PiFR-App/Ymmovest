@@ -13,21 +13,6 @@ CREATE TABLE prix_communes (
     loyerM2Median NUMERIC(10,2) NOT NULL
 );
 
--- Create user if not exists (safe when running multiple times)
-DO $$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'ymmovest_user') THEN
-      CREATE USER ymmovest_user WITH PASSWORD 'secure_password';
-   END IF;
-END
-$$;
-
-GRANT ALL PRIVILEGES ON TABLE prix_communes TO ymmovest_user;
-
--- Grant usage on the sequence backing the serial column (sequence name is deterministic)
--- If the sequence name differs, run: SELECT pg_get_serial_sequence('prix_communes','id');
-GRANT USAGE, SELECT ON SEQUENCE prix_communes_id_seq TO ymmovest_user;
-
 BEGIN;
 INSERT INTO prix_communes (code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median) VALUES
   ('75056','Paris','75000',10500,8000,15000,3.2,12543,28),
