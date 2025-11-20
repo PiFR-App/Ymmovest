@@ -1,11 +1,10 @@
 services:
   frontend:
     build: ./frontend
-    image: ymmovest-frontend
     container_name: frontend_service
-    restart: "no"
-    profiles:
-      - build
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
     networks:
       - app_network
 
@@ -14,13 +13,14 @@ services:
     container_name: nginx_proxy
     ports:
       - "8080:80"
-    # ne pas dépendre du service frontend pour éviter de le démarrer
     depends_on:
+      - frontend
       - backend
       - db
     restart: unless-stopped
     networks:
       - app_network
+
   backend:
     build: ./backend
     environment:

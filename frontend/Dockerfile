@@ -1,5 +1,7 @@
 FROM node:20-alpine AS build
 
+RUN apk add --no-cache wget
+
 WORKDIR /app
 
 COPY package*.json .
@@ -10,5 +12,8 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 
-RUN npm run build
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+#RUN npm run build
 
