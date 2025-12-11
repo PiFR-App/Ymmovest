@@ -23,7 +23,7 @@ CREATE TABLE users (
 BEGIN;
 
 INSERT INTO users (email, password_hash, role) VALUES
-  ('admin@example.com', '$2b$10$KIXQ1jG6kZ5E6Fh8JY9lUuF1ZpQeW8H9jK1L0mN3O4P5Q6R7S8T9u', 'admin'); -- password is 'adminpassword'
+  ('admin@example.com', '$2b$10$poquGFfRhSKCdGtw1ln0RerMC32qQox9IVRzzdpgVAd/auQkyYnOu', 'admin'); -- password is 'adminpassword'
 
 INSERT INTO prix_communes (code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median) VALUES
   ('75056','Paris','75000',10500,8000,15000,3.2,12543,28),

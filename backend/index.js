@@ -132,69 +132,64 @@ app.get("/api/communes/:code/loyer", async (req, res) => {
 
 // Login endpoint
 app.post("/api/auth/login", async (req, res) => {
-  const { email, password } = req.body;
-  
-  if (!email || !password) {
-    return res.status(400).json({ 
-      success: false, 
-      message: "Email et mot de passe requis" 
-    });
-  }
+    const { email, password } = req.body;
 
-  try {
-    const result = await pool.query(
-      `SELECT id, email, password_hash, role FROM users WHERE email = $1`,
-      [email]
-    );
-
-    if (!result.rows.length) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Email ou mot de passe incorrect" 
-      });
+    if (!email || !password) {
+        return res.status(400).json({
+            success: false,
+            message: "Email et mot de passe requis"
+        });
     }
 
-    const user = result.rows[0];
+    try {
+        const result = await pool.query(
+            `SELECT id, email, password_hash, role FROM users WHERE email = $1`,
+            [email]
+        );
 
-    // Vérifier si l'utilisateur est administrateur
-    if (user.role !== 'admin') {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Accès réservé aux administrateurs" 
-      });
+        if (!result.rows.length) {
+            return res.status(401).json({
+                success: false,
+                message: "Email ou mot de passe incorrect"
+            });
+        }
+
+        const user = result.rows[0];
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: "Accès réservé aux administrateurs"
+            });
+        }
+
+        // Comparer le mot de passe avec le hash en base
+        const bcrypt = require('bcrypt');
+        const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+        if (!passwordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Email ou mot de passe incorrect"
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Connexion réussie",
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: "Erreur serveur",
+            error: err.message
+        });
     }
-
-    // Pour l'instant, on compare directement le password
-    // En production, utiliser bcrypt.compare(password, user.password_hash)
-    // Mot de passe de test: "adminpassword"
-    const bcrypt = require('bcrypt');
-    password_user_hashed = bcrypt.hash(password);
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Email ou mot de passe incorrect" 
-      });
-    }
-
-    // Connexion réussie
-    res.json({ 
-      success: true, 
-      message: "Connexion réussie",
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      }
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Erreur serveur", 
-      error: err.message 
-    });
-  }
 });
