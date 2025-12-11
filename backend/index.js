@@ -168,6 +168,7 @@ app.post("/api/auth/login", async (req, res) => {
     // En production, utiliser bcrypt.compare(password, user.password_hash)
     // Mot de passe de test: "adminpassword"
     const bcrypt = require('bcrypt');
+    password_user_hashed = bcrypt.hash(password);
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatch) {
