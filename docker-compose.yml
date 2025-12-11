@@ -2,6 +2,9 @@ services:
   frontend:
     build: ./frontend
     container_name: frontend_service
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     restart: unless-stopped
     networks:
       - app_network
