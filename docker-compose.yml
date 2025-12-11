@@ -22,9 +22,8 @@ services:
   backend:
     build: ./backend
     environment:
-      - DATABASE_URL=postgres://root:1234@db:5432/database
-      - REDIS_URL=redis://cache:6379
-      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - NODE_ENV=${NODE_ENV}
     depends_on:
       db:
         condition: service_healthy
@@ -36,16 +35,16 @@ services:
     container_name: postgres_db
     image: postgres:15
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: database
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "PGPASSWORD=1234 pg_isready -U root -d database" ]
+      test: [ "CMD-SHELL", "PGPASSWORD=${POSTGRES_PASSWORD} pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 7s
       retries: 5
