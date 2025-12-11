@@ -13,7 +13,18 @@ CREATE TABLE prix_communes (
     loyerM2Median NUMERIC(10,2) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL
+);
+
 BEGIN;
+
+INSERT INTO users (email, password_hash, role) VALUES
+  ('admin@example.com', '$2b$10$KIXQ1jG6kZ5E6Fh8JY9lUuF1ZpQeW8H9jK1L0mN3O4P5Q6R7S8T9u', 'admin'); -- password is 'adminpassword'
+
 INSERT INTO prix_communes (code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median) VALUES
   ('75056','Paris','75000',10500,8000,15000,3.2,12543,28),
   ('75101','Paris 1er','75001',12800,10000,18000,2.8,245,32),

@@ -9,27 +9,49 @@ import {
   Divider,
   Link,
   Stack,
+  Snackbar
 } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
+import { useSnackbar } from 'notistack';
+import { login } from '../services/api';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
-  const handleEmailLogin = (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logique de connexion par email
-    console.log('Email login:', email, password);
+    setLoading(true);
+    
+    try {
+      const response = await login(email, password);
+      
+      if (response.success) {
+        enqueueSnackbar(`Bienvenue ${response.user.email} !`, { variant: 'success' });
+        // TODO: Redirection vers le dashboard ou stockage du token
+        // localStorage.setItem('user', JSON.stringify(response.user));
+        // navigate('/dashboard');
+      } else {
+        enqueueSnackbar(response.message || 'Connexion échouée', { variant: 'error' });
+      }
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Erreur de connexion';
+      enqueueSnackbar(message, { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
     // Logique de connexion Google
-    console.log('Google login');
+    enqueueSnackbar('Login par Google...', { variant: 'info' });
   };
 
   const handleGithubLogin = () => {
     // Logique de connexion GitHub
-    console.log('GitHub login');
+    enqueueSnackbar('Login par Github...', { variant: 'info' });
   };
 
   return (
@@ -170,6 +192,7 @@ export function Login() {
                 variant="contained"
                 size="large"
                 fullWidth
+                disabled={loading}
                 sx={{
                   py: 1.5,
                   backgroundColor: '#d4af37',
@@ -179,9 +202,13 @@ export function Login() {
                   '&:hover': {
                     backgroundColor: '#c49d2f',
                   },
+                  '&:disabled': {
+                    backgroundColor: '#e0e0e0',
+                    color: '#9e9e9e',
+                  },
                 }}
               >
-                Se connecter
+                {loading ? 'Connexion...' : 'Se connecter'}
               </Button>
             </Stack>
           </Box>
