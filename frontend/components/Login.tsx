@@ -39,7 +39,6 @@ export function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #1e293b 0%, #d4af37 100%)',
         padding: 2,
       }}
     >
