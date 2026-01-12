@@ -5,6 +5,7 @@ import { Dashboard } from "./components/Dashboard";
 import { DetailedSimulation } from "./components/DetailedSimulation";
 import { Report } from "./components/Report";
 import { Login } from "./components/Login";
+import { Admin } from "./components/Admin";
 import { NotFound } from "./components/NotFound";
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="simulation" element={<DetailedSimulation />} />
           <Route path="report" element={<Report />} />
           <Route path="login" element={<Login />} />
+          <Route path="admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

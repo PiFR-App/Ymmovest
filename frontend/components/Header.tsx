@@ -100,7 +100,7 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
             variant="outlined"
             size="small"
             sx={{ textTransform: "none", mr: 2 }}
-            onClick={() => window.location.href = '/login'}
+            onClick={() => window.location.href = '/admin'}
             >
             Connexion
             </Button>

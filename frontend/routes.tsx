@@ -5,6 +5,8 @@ import { Dashboard } from "./components/Dashboard";
 import { DetailedSimulation } from "./components/DetailedSimulation";
 import { Report } from "./components/Report";
 import { NotFound } from "./components/NotFound";
+import { Login } from "./components/Login";
+import { Admin } from "./components/Admin";
 
 export const routes: RouteObject[] = [
   {
@@ -26,6 +28,14 @@ export const routes: RouteObject[] = [
       {
         path: "report",
         Component: Report,
+      },
+      {
+        path: "admin",
+        Component: Login,
+      },
+      {
+        path: "admin/communes",
+        Component: Admin,
       },
       {
         path: "*",

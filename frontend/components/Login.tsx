@@ -9,7 +9,6 @@ import {
   Divider,
   Link,
   Stack,
-  Snackbar
 } from '@mui/material';
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
@@ -30,9 +29,8 @@ export function Login() {
       
       if (response.success) {
         enqueueSnackbar(`Bienvenue ${response.user.email} !`, { variant: 'success' });
-        // TODO: Redirection vers le dashboard ou stockage du token
-        // localStorage.setItem('user', JSON.stringify(response.user));
-        // navigate('/dashboard');
+        // TODO: Redirection vers le dashboard admin
+        
       } else {
         enqueueSnackbar(response.message || 'Connexion échouée', { variant: 'error' });
       }
