@@ -34,3 +34,10 @@ export async function estimerLoyer(code: string, surface: number) {
     .then((res: AxiosResponse) => res.data);
   return res;
 }
+
+export async function login(email: string, password: string) {
+  const res = await axios
+    .post(`/api/auth/login`, { email, password })
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}

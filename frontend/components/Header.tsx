@@ -3,6 +3,7 @@ import {
   Toolbar,
   Typography,
   IconButton,
+  Button,
   Box,
   Container,
   Breadcrumbs,
@@ -95,6 +96,15 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
             )}
           </Box>
 
+            <Button
+            variant="outlined"
+            size="small"
+            sx={{ textTransform: "none", mr: 2 }}
+            onClick={() => window.location.href = '/login'}
+            >
+            Connexion
+            </Button>
+            
           <IconButton onClick={toggleDarkMode} color="inherit" sx={{ color: "text.primary" }}>
             {darkMode ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
