@@ -6,7 +6,10 @@ import { DetailedSimulation } from "./components/DetailedSimulation";
 import { Report } from "./components/Report";
 import { NotFound } from "./components/NotFound";
 import { Login } from "./components/Login";
-import { Admin } from "./components/Admin";
+import { AdminPanel } from "./components/AdminPanel";
+import { CitiesManagement } from "./components/CitiesManagement";
+import { UsersManagement } from "./components/UsersManagement";
+import ApiDocs from "./components/Swagger";
 
 export const routes: RouteObject[] = [
   {
@@ -30,12 +33,20 @@ export const routes: RouteObject[] = [
         Component: Report,
       },
       {
-        path: "admin",
+        path: "login",
         Component: Login,
       },
       {
+        path: "admin",
+        Component: AdminPanel,
+      },
+      {
         path: "admin/communes",
-        Component: Admin,
+        Component: CitiesManagement,
+      },
+      {
+        path: "admin/users",
+        Component: UsersManagement,
       },
       {
         path: "*",

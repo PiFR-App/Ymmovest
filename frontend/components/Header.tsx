@@ -58,7 +58,8 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
                   width: 40,
                   height: 40,
                   borderRadius: 2,
-                  background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+                  background:
+                    "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -87,7 +88,11 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
                 <Link
                   underline="hover"
                   color="text.secondary"
-                  sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
                 >
                   {viewIcons[currentView]}
                   {viewLabels[currentView]}
@@ -96,16 +101,37 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
             )}
           </Box>
 
-            <Button
+          <Button
             variant="outlined"
             size="small"
             sx={{ textTransform: "none", mr: 2 }}
-            onClick={() => window.location.href = '/admin'}
-            >
+            onClick={() => (window.location.href = "/login")}
+          >
             Connexion
-            </Button>
-            
-          <IconButton onClick={toggleDarkMode} color="inherit" sx={{ color: "text.primary" }}>
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              textTransform: "none",
+              py: 1.5,
+              borderColor: "#ea4335",
+              color: "#ea4335",
+              "&:hover": {
+                borderColor: "#ea4335",
+                backgroundColor: "#ea4335",
+                color: "white",
+              },
+            }}
+            onClick={() => (window.location.href = "/login")}
+          >
+            Déconnexion
+          </Button>
+
+          <IconButton
+            onClick={toggleDarkMode}
+            color="inherit"
+            sx={{ color: "text.primary" }}
+          >
             {darkMode ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
         </Toolbar>

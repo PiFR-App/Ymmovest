@@ -5,8 +5,10 @@ import { Dashboard } from "./components/Dashboard";
 import { DetailedSimulation } from "./components/DetailedSimulation";
 import { Report } from "./components/Report";
 import { Login } from "./components/Login";
-import { Admin } from "./components/Admin";
+import { AdminPanel } from "./components/AdminPanel";
+import { CitiesManagement } from "./components/CitiesManagement";
 import { NotFound } from "./components/NotFound";
+import { UsersManagement } from "./components/UsersManagement";
 
 export default function App() {
   return (
@@ -18,7 +20,9 @@ export default function App() {
           <Route path="simulation" element={<DetailedSimulation />} />
           <Route path="report" element={<Report />} />
           <Route path="login" element={<Login />} />
-          <Route path="admin" element={<Admin />} />
+          <Route path="admin" element={<AdminPanel />} />
+          <Route path="admin/communes" element={<CitiesManagement />} />
+          <Route path="admin/users" element={<UsersManagement />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

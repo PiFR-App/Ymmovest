@@ -302,3 +302,114 @@ app.delete("/api/admin/communes/:id", async (req, res) => {
   }
 });
 
+// ============================================
+// ROUTES ADMIN POUR GESTION DES UTILISATEURS
+// ============================================
+
+// Récupérer tous les utilisateurs
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, email, role FROM users ORDER BY id`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs", error: err.message });
+  }
+});
+
+// Créer un nouvel utilisateur
+app.post("/api/admin/users", async (req, res) => {
+  const { email, password, role } = req.body;
+  
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: "Email, mot de passe et rôle sont requis" });
+  }
+
+  try {
+    const bcrypt = require('bcrypt');
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `INSERT INTO users (email, password_hash, role)
+       VALUES ($1, $2, $3)
+       RETURNING id, email, role`,
+      [email, password_hash, role]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') { // Code d'erreur PostgreSQL pour violation d'unicité
+      res.status(400).json({ message: "Cet email est déjà utilisé" });
+    } else {
+      res.status(500).json({ message: "Erreur lors de la création de l'utilisateur", error: err.message });
+    }
+  }
+});
+
+// Modifier un utilisateur
+app.put("/api/admin/users/:id", async (req, res) => {
+  const id = req.params.id;
+  const { email, password, role } = req.body;
+  
+  try {
+    let query, params;
+    
+    if (password) {
+      // Si un nouveau mot de passe est fourni, on le hash
+      const bcrypt = require('bcrypt');
+      const password_hash = await bcrypt.hash(password, 10);
+      
+      query = `UPDATE users 
+               SET email = $1, password_hash = $2, role = $3
+               WHERE id = $4
+               RETURNING id, email, role`;
+      params = [email, password_hash, role, id];
+    } else {
+      // Sinon on met à jour seulement l'email et le rôle
+      query = `UPDATE users 
+               SET email = $1, role = $2
+               WHERE id = $3
+               RETURNING id, email, role`;
+      params = [email, role, id];
+    }
+    
+    const result = await pool.query(query, params);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') {
+      res.status(400).json({ message: "Cet email est déjà utilisé" });
+    } else {
+      res.status(500).json({ message: "Erreur lors de la modification de l'utilisateur", error: err.message });
+    }
+  }
+});
+
+// Supprimer un utilisateur
+app.delete("/api/admin/users/:id", async (req, res) => {
+  const id = req.params.id;
+  
+  try {
+    const result = await pool.query(
+      `DELETE FROM users WHERE id = $1 RETURNING id`,
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    
+    res.json({ message: "Utilisateur supprimé avec succès", id: result.rows[0].id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur", error: err.message });
+  }
+});
+

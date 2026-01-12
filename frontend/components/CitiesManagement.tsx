@@ -24,7 +24,7 @@ import {
 } from '../services/api';
 import { CommuneData } from '../types';
 
-export function Admin() {
+export function CitiesManagement() {
   const [communes, setCommunes] = useState<CommuneData[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -144,7 +144,7 @@ export function Admin() {
               flex: 1,
             }}
           >
-            Gestion des Communes
+            Gestion des communes
           </Typography>
           <Button
             variant="contained"
