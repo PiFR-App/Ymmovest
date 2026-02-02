@@ -1,4 +1,4 @@
-import { CommuneData } from "../types";
+import { CommuneData, UserData } from "../types";
 import axios, { AxiosResponse } from "axios";
 
 export async function searchCommunes(query: string): Promise<CommuneData[]> {
@@ -38,6 +38,64 @@ export async function estimerLoyer(code: string, surface: number) {
 export async function login(email: string, password: string) {
   const res = await axios
     .post(`/api/auth/login`, { email, password })
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
+// Admin CRUD pour les communes
+export async function getAllCommunes(): Promise<CommuneData[]> {
+  const res = await axios
+    .get<CommuneData[]>(`/api/admin/communes`)
+    .then((res: AxiosResponse<CommuneData[]>) => res.data);
+  return res;
+}
+
+export async function createCommune(data: Partial<CommuneData>) {
+  const res = await axios
+    .post(`/api/admin/communes`, data)
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
+export async function updateCommune(id: number, data: Partial<CommuneData>) {
+  const res = await axios
+    .put(`/api/admin/communes/${id}`, data)
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
+export async function deleteCommune(id: number) {
+  const res = await axios
+    .delete(`/api/admin/communes/${id}`)
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
+// Admin CRUD pour les utilisateurs
+export async function getAllUsers(): Promise<UserData[]> {
+  const res = await axios
+    .get<UserData[]>(`/api/admin/users`)
+    .then((res: AxiosResponse<UserData[]>) => res.data);
+  return res;
+}
+
+export async function createUser(data: Partial<UserData>) {
+  const res = await axios
+    .post(`/api/admin/users`, data)
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
+export async function updateUser(id: number, data: Partial<UserData>) {
+  const res = await axios
+    .put(`/api/admin/users/${id}`, data)
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
+export async function deleteUser(id: number) {
+  const res = await axios
+    .delete(`/api/admin/users/${id}`)
     .then((res: AxiosResponse) => res.data);
   return res;
 }

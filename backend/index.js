@@ -1,15 +1,17 @@
 const express = require("express");
 const cors = require('cors');
+    const path = require("path");
 const { Pool } = require('pg');
-
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
-
+const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yaml'));
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
 
 const connectionString = process.env.DATABASE_URL;
@@ -17,10 +19,6 @@ const pool = new Pool({ connectionString });
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is running" });
-});
-
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
 });
 
 app.get("/health", async (req, res) => {
@@ -193,3 +191,232 @@ app.post("/api/auth/login", async (req, res) => {
         });
     }
 });
+
+// ============================================
+// ROUTES ADMIN POUR GESTION DES COMMUNES
+// ============================================
+
+// Récupérer toutes les communes
+app.get("/api/admin/communes", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, code, nom, codepostal as "codePostal", 
+              prixm2median::float as "prixM2Median", 
+              prixm2min::float as "prixM2Min", 
+              prixm2max::float as "prixM2Max", 
+              evolution1an::float as "evolution1An", 
+              nombretransactions as "nombreTransactions", 
+              loyerm2median::float as "loyerM2Median"
+       FROM prix_communes
+       ORDER BY id`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération des communes", error: err.message });
+  }
+});
+
+// Créer une nouvelle commune
+app.post("/api/admin/communes", async (req, res) => {
+  const { code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median } = req.body;
+  
+  if (!code || !nom || !codePostal || prixM2Median === undefined || prixM2Min === undefined || 
+      prixM2Max === undefined || evolution1An === undefined || nombreTransactions === undefined || 
+      loyerM2Median === undefined) {
+    return res.status(400).json({ message: "Tous les champs sont requis" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO prix_communes (code, nom, codepostal, prixm2median, prixm2min, prixm2max, evolution1an, nombretransactions, loyerm2median)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, code, nom, codepostal as "codePostal", 
+                 prixm2median::float as "prixM2Median", 
+                 prixm2min::float as "prixM2Min", 
+                 prixm2max::float as "prixM2Max", 
+                 evolution1an::float as "evolution1An", 
+                 nombretransactions as "nombreTransactions", 
+                 loyerm2median::float as "loyerM2Median"`,
+      [code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la création de la commune", error: err.message });
+  }
+});
+
+// Modifier une commune
+app.put("/api/admin/communes/:id", async (req, res) => {
+  const id = req.params.id;
+  const { code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median } = req.body;
+  
+  try {
+    const result = await pool.query(
+      `UPDATE prix_communes 
+       SET code = $1, nom = $2, codepostal = $3, prixm2median = $4, prixm2min = $5, 
+           prixm2max = $6, evolution1an = $7, nombretransactions = $8, loyerm2median = $9
+       WHERE id = $10
+       RETURNING id, code, nom, codepostal as "codePostal", 
+                 prixm2median::float as "prixM2Median", 
+                 prixm2min::float as "prixM2Min", 
+                 prixm2max::float as "prixM2Max", 
+                 evolution1an::float as "evolution1An", 
+                 nombretransactions as "nombreTransactions", 
+                 loyerm2median::float as "loyerM2Median"`,
+      [code, nom, codePostal, prixM2Median, prixM2Min, prixM2Max, evolution1An, nombreTransactions, loyerM2Median, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Commune non trouvée" });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la modification de la commune", error: err.message });
+  }
+});
+
+// Supprimer une commune
+app.delete("/api/admin/communes/:id", async (req, res) => {
+  const id = req.params.id;
+  
+  try {
+    const result = await pool.query(
+      `DELETE FROM prix_communes WHERE id = $1 RETURNING id`,
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Commune non trouvée" });
+    }
+    
+    res.json({ message: "Commune supprimée avec succès", id: result.rows[0].id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la suppression de la commune", error: err.message });
+  }
+});
+
+
+app.get("/api/docs.json", async (req, res) => {
+    res.status(200).json(swaggerDocument);
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+
+// ============================================
+// ROUTES ADMIN POUR GESTION DES UTILISATEURS
+// ============================================
+
+// Récupérer tous les utilisateurs
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, email, role FROM users ORDER BY id`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs", error: err.message });
+  }
+});
+
+// Créer un nouvel utilisateur
+app.post("/api/admin/users", async (req, res) => {
+  const { email, password, role } = req.body;
+  
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: "Email, mot de passe et rôle sont requis" });
+  }
+
+  try {
+    const bcrypt = require('bcrypt');
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `INSERT INTO users (email, password_hash, role)
+       VALUES ($1, $2, $3)
+       RETURNING id, email, role`,
+      [email, password_hash, role]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') { // Code d'erreur PostgreSQL pour violation d'unicité
+      res.status(400).json({ message: "Cet email est déjà utilisé" });
+    } else {
+      res.status(500).json({ message: "Erreur lors de la création de l'utilisateur", error: err.message });
+    }
+  }
+});
+
+// Modifier un utilisateur
+app.put("/api/admin/users/:id", async (req, res) => {
+  const id = req.params.id;
+  const { email, password, role } = req.body;
+  
+  try {
+    let query, params;
+    
+    if (password) {
+      // Si un nouveau mot de passe est fourni, on le hash
+      const bcrypt = require('bcrypt');
+      const password_hash = await bcrypt.hash(password, 10);
+      
+      query = `UPDATE users 
+               SET email = $1, password_hash = $2, role = $3
+               WHERE id = $4
+               RETURNING id, email, role`;
+      params = [email, password_hash, role, id];
+    } else {
+      // Sinon on met à jour seulement l'email et le rôle
+      query = `UPDATE users 
+               SET email = $1, role = $2
+               WHERE id = $3
+               RETURNING id, email, role`;
+      params = [email, role, id];
+    }
+    
+    const result = await pool.query(query, params);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    if (err.code === '23505') {
+      res.status(400).json({ message: "Cet email est déjà utilisé" });
+    } else {
+      res.status(500).json({ message: "Erreur lors de la modification de l'utilisateur", error: err.message });
+    }
+  }
+});
+
+// Supprimer un utilisateur
+app.delete("/api/admin/users/:id", async (req, res) => {
+  const id = req.params.id;
+  
+  try {
+    const result = await pool.query(
+      `DELETE FROM users WHERE id = $1 RETURNING id`,
+      [id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    
+    res.json({ message: "Utilisateur supprimé avec succès", id: result.rows[0].id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur", error: err.message });
+  }
+});
+

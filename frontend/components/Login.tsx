@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   Container,
@@ -14,9 +14,11 @@ import {
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { login } from '../services/api';
+import {useNavigate} from "react-router-dom";
 
 export function Login() {
-  const [email, setEmail] = useState('');
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
@@ -24,21 +26,23 @@ export function Login() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const response = await login(email, password);
-      
+
       if (response.success) {
         enqueueSnackbar(`Bienvenue ${response.user.email} !`, { variant: 'success' });
         // TODO: Redirection vers le dashboard ou stockage du token
-        // localStorage.setItem('user', JSON.stringify(response.user));
-        // navigate('/dashboard');
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/admin');
       } else {
-        enqueueSnackbar(response.message || 'Connexion échouée', { variant: 'error' });
+        enqueueSnackbar(response.message || "Connexion échouée", {
+          variant: "error",
+        });
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Erreur de connexion';
-      enqueueSnackbar(message, { variant: 'error' });
+      const message = error.response?.data?.message || "Erreur de connexion";
+      enqueueSnackbar(message, { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -46,21 +50,21 @@ export function Login() {
 
   const handleGoogleLogin = () => {
     // Logique de connexion Google
-    enqueueSnackbar('Login par Google...', { variant: 'info' });
+    enqueueSnackbar("Login par Google...", { variant: "info" });
   };
 
   const handleGithubLogin = () => {
     // Logique de connexion GitHub
-    enqueueSnackbar('Login par Github...', { variant: 'info' });
+    enqueueSnackbar("Login par Github...", { variant: "info" });
   };
 
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         padding: 2,
       }}
     >
@@ -94,14 +98,14 @@ export function Login() {
               startIcon={<GoogleIcon />}
               onClick={handleGoogleLogin}
               sx={{
-                textTransform: 'none',
+                textTransform: "none",
                 py: 1.5,
-                borderColor: '#ea4335',
-                color: '#ea4335',
-                '&:hover': {
-                  borderColor: '#ea4335',
-                  backgroundColor: '#ea4335',
-                  color: 'white',
+                borderColor: "#ea4335",
+                color: "#ea4335",
+                "&:hover": {
+                  borderColor: "#ea4335",
+                  backgroundColor: "#ea4335",
+                  color: "white",
                 },
               }}
             >
@@ -123,14 +127,14 @@ export function Login() {
               }
               onClick={handleGithubLogin}
               sx={{
-                textTransform: 'none',
+                textTransform: "none",
                 py: 1.5,
-                borderColor: '#333',
-                color: '#333',
-                '&:hover': {
-                  borderColor: '#333',
-                  backgroundColor: '#333',
-                  color: 'white',
+                borderColor: "#333",
+                color: "#333",
+                "&:hover": {
+                  borderColor: "#333",
+                  backgroundColor: "#333",
+                  color: "white",
                 },
               }}
             >
@@ -175,11 +179,11 @@ export function Login() {
                   href="#"
                   variant="body2"
                   sx={{
-                    color: '#d4af37',
-                    textDecoration: 'none',
+                    color: "#d4af37",
+                    textDecoration: "none",
                     fontWeight: 500,
-                    '&:hover': {
-                      textDecoration: 'underline',
+                    "&:hover": {
+                      textDecoration: "underline",
                     },
                   }}
                 >
@@ -195,36 +199,40 @@ export function Login() {
                 disabled={loading}
                 sx={{
                   py: 1.5,
-                  backgroundColor: '#d4af37',
-                  color: '#1e293b',
+                  backgroundColor: "#d4af37",
+                  color: "#1e293b",
                   fontWeight: 600,
-                  textTransform: 'none',
-                  '&:hover': {
-                    backgroundColor: '#c49d2f',
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor: "#c49d2f",
                   },
-                  '&:disabled': {
-                    backgroundColor: '#e0e0e0',
-                    color: '#9e9e9e',
+                  "&:disabled": {
+                    backgroundColor: "#e0e0e0",
+                    color: "#9e9e9e",
                   },
                 }}
               >
-                {loading ? 'Connexion...' : 'Se connecter'}
+                {loading ? "Connexion..." : "Se connecter"}
               </Button>
             </Stack>
           </Box>
 
           {/* Lien d'inscription */}
           <Box mt={4} pt={3} borderTop="1px solid" borderColor="divider">
-            <Typography variant="body2" color="text.secondary" textAlign="center">
-              Pas encore de compte ?{' '}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              textAlign="center"
+            >
+              Pas encore de compte ?{" "}
               <Link
                 href="#"
                 sx={{
-                  color: '#d4af37',
-                  textDecoration: 'none',
+                  color: "#d4af37",
+                  textDecoration: "none",
                   fontWeight: 600,
-                  '&:hover': {
-                    textDecoration: 'underline',
+                  "&:hover": {
+                    textDecoration: "underline",
                   },
                 }}
               >
@@ -232,6 +240,27 @@ export function Login() {
               </Link>
             </Typography>
           </Box>
+
+          {/* Bypass dev */}
+          <Button
+            variant="outlined"
+            size="large"
+            fullWidth
+            onClick={() => (window.location.href = "/admin")}
+            sx={{
+              textTransform: "none",
+              py: 1.5,
+              borderColor: "#333",
+              color: "#333",
+              "&:hover": {
+                borderColor: "#333",
+                backgroundColor: "#333",
+                color: "white",
+              },
+            }}
+          >
+            Bypass dev
+          </Button>
         </Paper>
       </Container>
     </Box>

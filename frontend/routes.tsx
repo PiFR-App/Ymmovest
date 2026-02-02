@@ -5,6 +5,11 @@ import { Dashboard } from "./components/Dashboard";
 import { DetailedSimulation } from "./components/DetailedSimulation";
 import { Report } from "./components/Report";
 import { NotFound } from "./components/NotFound";
+import { Login } from "./components/Login";
+import { AdminPanel } from "./components/AdminPanel";
+import { CitiesManagement } from "./components/CitiesManagement";
+import { UsersManagement } from "./components/UsersManagement";
+import SwaggerUiComponent from "./components/SwaggerUiComponent";
 
 export const routes: RouteObject[] = [
   {
@@ -26,6 +31,26 @@ export const routes: RouteObject[] = [
       {
         path: "report",
         Component: Report,
+      },
+      {
+        path: "login",
+        Component: Login,
+      },
+        {
+            path: "admin/docs",
+            Component: SwaggerUiComponent,
+        },
+      {
+        path: "admin",
+        Component: AdminPanel,
+      },
+      {
+        path: "admin/communes",
+        Component: CitiesManagement,
+      },
+      {
+        path: "admin/users",
+        Component: UsersManagement,
       },
       {
         path: "*",

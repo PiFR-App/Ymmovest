@@ -17,6 +17,7 @@ import {
   Assessment,
   Description,
 } from "@mui/icons-material";
+import {useNavigate} from "react-router-dom";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -25,7 +26,9 @@ interface HeaderProps {
 }
 
 export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
-  const viewLabels: Record<string, string> = {
+    const navigate = useNavigate();
+
+    const viewLabels: Record<string, string> = {
     home: "Accueil",
     dashboard: "Tableau de bord",
     details: "Simulation détaillée",
@@ -52,13 +55,15 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ justifyContent: "space-between", py: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <Button onClick={()=> navigate('/')} sx={{ color: "text.secondary" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
                 sx={{
                   width: 40,
                   height: 40,
                   borderRadius: 2,
-                  background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+                  background:
+                    "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -81,13 +86,18 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
                 Ymmovest
               </Typography>
             </Box>
+              </Button>
 
             {currentView !== "home" && (
               <Breadcrumbs sx={{ display: { xs: "none", md: "flex" } }}>
                 <Link
                   underline="hover"
                   color="text.secondary"
-                  sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
                 >
                   {viewIcons[currentView]}
                   {viewLabels[currentView]}
@@ -96,16 +106,37 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
             )}
           </Box>
 
-            <Button
+          <Button
             variant="outlined"
             size="small"
             sx={{ textTransform: "none", mr: 2 }}
-            onClick={() => window.location.href = '/login'}
+            onClick={()=> navigate('login')}
             >
             Connexion
-            </Button>
-            
-          <IconButton onClick={toggleDarkMode} color="inherit" sx={{ color: "text.primary" }}>
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              textTransform: "none",
+              py: 1.5,
+              borderColor: "#ea4335",
+              color: "#ea4335",
+              "&:hover": {
+                borderColor: "#ea4335",
+                backgroundColor: "#ea4335",
+                color: "white",
+              },
+            }}
+            onClick={() => (window.location.href = "/login")}
+          >
+            Déconnexion
+          </Button>
+
+          <IconButton
+            onClick={toggleDarkMode}
+            color="inherit"
+            sx={{ color: "text.primary" }}
+          >
             {darkMode ? <Brightness7 /> : <Brightness4 />}
           </IconButton>
         </Toolbar>

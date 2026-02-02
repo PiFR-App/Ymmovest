@@ -12,6 +12,13 @@ export interface CommuneData {
   nombreTransactions: number;
   loyerM2Median: number;
 }
+
+export interface UserData {
+  id?: number;
+  email: string;
+  password?: string; // utilisé seulement lors de la création/modification
+  role: string;
+}
 export type { SimulationData } from "../contexts/SimulationContext";
 export type {
   TauxCreditData,
