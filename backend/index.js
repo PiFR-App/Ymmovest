@@ -128,7 +128,11 @@ app.get("/api/communes/:code/loyer", async (req, res) => {
   }
 });
 
-// Login endpoint
+
+// ============================================
+// ROUTES ADMIN POUR CONNEXIONS
+// ============================================
+
 app.post("/api/auth/login", async (req, res) => {
     const { email, password } = req.body;
 
@@ -190,6 +194,72 @@ app.post("/api/auth/login", async (req, res) => {
             error: err.message
         });
     }
+});
+
+app.post("/api/auth/google", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Token manquant" });
+    }
+
+    // 1️⃣ Vérification cryptographique du token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    // 2️⃣ Extraction des infos utilisateur
+    const payload = ticket.getPayload();
+
+    const {
+      sub,      // ID Google unique (NE CHANGE JAMAIS)
+      email,
+      name,
+      picture,
+      email_verified,
+    } = payload;
+
+    if (!email_verified) {
+      return res.status(401).json({ message: "Email non vérifié" });
+    }
+
+    // 3️⃣ Trouver ou créer l’utilisateur
+    let user = await User.findOne({ googleId: sub });
+
+    if (!user) {
+      user = await User.create({
+        googleId: sub,
+        email,
+        name,
+        avatar: picture,
+        provider: "google",
+      });
+    }
+
+    // 4️⃣ Générer TON token (JWT)
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // 5️⃣ Répondre au frontend
+    res.status(200).json({
+      accessToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+      },
+    });
+
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(401).json({ message: "Token Google invalide" });
+  }
 });
 
 // ============================================

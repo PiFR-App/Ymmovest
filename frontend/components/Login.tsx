@@ -9,17 +9,19 @@ import {
   Divider,
   Link,
   Stack,
-  Snackbar
-} from '@mui/material';
-import { Google as GoogleIcon } from '@mui/icons-material';
-import { useSnackbar } from 'notistack';
-import { login } from '../services/api';
-import {useNavigate} from "react-router-dom";
+  Snackbar,
+} from "@mui/material";
+import { Google as GoogleIcon } from "@mui/icons-material";
+import { useSnackbar } from "notistack";
+import { login } from "../services/api";
+import { googleLogin } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 export function Login() {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -31,10 +33,12 @@ export function Login() {
       const response = await login(email, password);
 
       if (response.success) {
-        enqueueSnackbar(`Bienvenue ${response.user.email} !`, { variant: 'success' });
+        enqueueSnackbar(`Bienvenue ${response.user.email} !`, {
+          variant: "success",
+        });
         // TODO: Redirection vers le dashboard ou stockage du token
-        localStorage.setItem('user', JSON.stringify(response.user));
-        navigate('/admin');
+        localStorage.setItem("user", JSON.stringify(response.user));
+        navigate("/admin");
       } else {
         enqueueSnackbar(response.message || "Connexion échouée", {
           variant: "error",
@@ -48,9 +52,32 @@ export function Login() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Logique de connexion Google
-    enqueueSnackbar("Login par Google...", { variant: "info" });
+  const handleSuccess = async (credentialResponse: any) => {
+    try {
+      const token = credentialResponse.credential;
+
+      if (!token) {
+        throw new Error("Token Google manquant");
+      }
+
+      const response = await googleLogin(token);
+
+      enqueueSnackbar(`Bienvenue ${response.user.email} !`, {
+        variant: "success",
+      });
+
+      // TODO :
+      // - stocker accessToken
+      // - rediriger l'utilisateur
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Erreur de connexion Google";
+      enqueueSnackbar(message, { variant: "error" });
+    }
+  };
+
+  const handleError = () => {
+    enqueueSnackbar("Échec de la connexion Google", { variant: "error" });
   };
 
   const handleGithubLogin = () => {
@@ -91,26 +118,7 @@ export function Login() {
 
           {/* Boutons SSO */}
           <Stack spacing={2} mb={3}>
-            <Button
-              variant="outlined"
-              size="large"
-              fullWidth
-              startIcon={<GoogleIcon />}
-              onClick={handleGoogleLogin}
-              sx={{
-                textTransform: "none",
-                py: 1.5,
-                borderColor: "#ea4335",
-                color: "#ea4335",
-                "&:hover": {
-                  borderColor: "#ea4335",
-                  backgroundColor: "#ea4335",
-                  color: "white",
-                },
-              }}
-            >
-              Continuer avec Google
-            </Button>
+            <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
 
             <Button
               variant="outlined"

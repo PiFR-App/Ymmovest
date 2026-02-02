@@ -42,6 +42,13 @@ export async function login(email: string, password: string) {
   return res;
 }
 
+export async function googleLogin(token: string) {
+  const res = await axios
+    .post(`/api/auth/google`, { token })
+    .then((res: AxiosResponse) => res.data);
+  return res;
+}
+
 // Admin CRUD pour les communes
 export async function getAllCommunes(): Promise<CommuneData[]> {
   const res = await axios
