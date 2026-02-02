@@ -24,7 +24,7 @@ export default function App() {
           <Route path="admin" element={<AdminPanel />} />
           <Route path="admin/communes" element={<CitiesManagement />} />
           <Route path="admin/users" element={<UsersManagement />} />
-            {/*<Route path="admin/docs" element={<SwaggerUIComponent/>} />*/}
+            <Route path="admin/docs" element={<SwaggerUIComponent/>} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

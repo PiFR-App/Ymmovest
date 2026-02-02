@@ -3,7 +3,7 @@ import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
 
 const SwaggerUIComponent: React.FC = () => {
-    return <SwaggerUI url="/api/admin/docs" docExpansion="none" />;
+    return <SwaggerUI url="/api/docs.json" docExpansion="none" />;
 }
 
 export default SwaggerUIComponent;   

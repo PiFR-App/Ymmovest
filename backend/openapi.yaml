@@ -8,6 +8,19 @@ servers:
 paths:
   /:
     get:
+      summary: Statut de l'API
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /health:
+    get:
       summary: Statut du service et base de données
       responses:
         200:
@@ -18,8 +31,7 @@ paths:
                 type: object
                 properties:
                   status:
-                    type:
-                      string
+                    type: string
         500:
           description: Erreur serveur
           content:
@@ -122,14 +134,14 @@ paths:
                   message:
                     type: string
                   user:
-                    type:
-                      objectproperties:
-                        id:
-                          type: integer
-                        email:
-                          type: string
-                        role:
-                          type: string
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      role:
+                        type: string
         400:
           description: Données manquantes
         401:
