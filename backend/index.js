@@ -10,11 +10,6 @@ const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-console.log('=== CONFIGURATION AU DÉMARRAGE ===');
-console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✓ Défini' : '✗ Manquant');
-console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✓ Défini' : '✗ Manquant');
-console.log('===================================');
 app.use(express.json());
 app.use(cors());
 const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yaml'));
