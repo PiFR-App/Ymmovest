@@ -23,7 +23,7 @@ export function AdminPanel() {
       title: 'Swagger API',
       icon: <Api sx={{ fontSize: 80 }} />,
       color: '#f59e0b',
-      action: () => navigate('/docs'),
+      action: () => navigate('/api/docs'),
     },
     {
       title: 'Paramètres',
