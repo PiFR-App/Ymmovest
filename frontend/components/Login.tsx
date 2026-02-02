@@ -34,7 +34,7 @@ export function Login() {
         enqueueSnackbar(`Bienvenue ${response.user.email} !`, { variant: 'success' });
         // TODO: Redirection vers le dashboard ou stockage du token
         localStorage.setItem('user', JSON.stringify(response.user));
-        navigate('/admin/communes');
+        navigate('/admin');
       } else {
         enqueueSnackbar(response.message || "Connexion échouée", {
           variant: "error",
