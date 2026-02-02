@@ -52,29 +52,29 @@ export function Login() {
     }
   };
 
-  const handleSuccess = async (credentialResponse: any) => {
-    try {
-      const token = credentialResponse.credential;
+    const handleSuccess = async (credentialResponse: any) => {
+        try {
+            const token = credentialResponse.credential;
 
-      if (!token) {
-        throw new Error("Token Google manquant");
-      }
+            if (!token) {
+                throw new Error("Token Google manquant");
+            }
 
-      const response = await googleLogin(token);
+            const response = await googleLogin(token);
 
-      enqueueSnackbar(`Bienvenue ${response.user.email} !`, {
-        variant: "success",
-      });
+            localStorage.setItem("user", JSON.stringify(response.user));
+            enqueueSnackbar(`Bienvenue ${response.user.email} !`, {
+                variant: "success",
+            });
+            navigate("/admin");
+        } catch (error: any) {
+            const message =
+                error.response?.data?.message || "Erreur de connexion Google";
+            enqueueSnackbar(message, { variant: "error" });
+        }
+    };
 
-      // TODO :
-      // - stocker accessToken
-      // - rediriger l'utilisateur
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message || "Erreur de connexion Google";
-      enqueueSnackbar(message, { variant: "error" });
-    }
-  };
+
 
   const handleError = () => {
     enqueueSnackbar("Échec de la connexion Google", { variant: "error" });
@@ -118,8 +118,13 @@ export function Login() {
 
           {/* Boutons SSO */}
           <Stack spacing={2} mb={3}>
-            <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-
+              <GoogleLogin
+                  onSuccess={handleSuccess}
+                  onError={() => {
+                      enqueueSnackbar("Erreur de connexion Google", { variant: "error" });
+                  }}
+                  useOneTap={false}
+              />
             <Button
               variant="outlined"
               size="large"

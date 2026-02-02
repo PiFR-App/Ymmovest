@@ -6,7 +6,15 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const app = express();
 const PORT = process.env.PORT || 5000;
+const { OAuth2Client } = require('google-auth-library');
+const jwt = require('jsonwebtoken');
 
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+console.log('=== CONFIGURATION AU DÉMARRAGE ===');
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✓ Défini' : '✗ Manquant');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '✓ Défini' : '✗ Manquant');
+console.log('===================================');
 app.use(express.json());
 app.use(cors());
 const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yaml'));
@@ -197,70 +205,53 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 app.post("/api/auth/google", async (req, res) => {
-  try {
-    const { token } = req.body;
+    try {
+        const { token } = req.body;
 
-    if (!token) {
-      return res.status(400).json({ message: "Token manquant" });
+        if (!token) {
+            console.error('Token manquant dans la requête');
+            return res.status(400).json({ message: 'Token manquant' });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        console.log('Token validé avec succès');
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+
+        const result = await pool.query(
+            'SELECT id, email, role FROM users WHERE email = $1',
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({
+                message: "Email non autorisé"
+            });
+        }
+
+        const user = result.rows[0];
+
+        const jwtToken = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.json({ token: jwtToken, user });
+    } catch (error) {
+        console.error('Erreur validation Google:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack
+        });
+        return res.status(401).json({ message: 'token google invalide', error: error.message });
     }
-
-    // 1️⃣ Vérification cryptographique du token
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    // 2️⃣ Extraction des infos utilisateur
-    const payload = ticket.getPayload();
-
-    const {
-      sub,      // ID Google unique (NE CHANGE JAMAIS)
-      email,
-      name,
-      picture,
-      email_verified,
-    } = payload;
-
-    if (!email_verified) {
-      return res.status(401).json({ message: "Email non vérifié" });
-    }
-
-    // 3️⃣ Trouver ou créer l’utilisateur
-    let user = await User.findOne({ googleId: sub });
-
-    if (!user) {
-      user = await User.create({
-        googleId: sub,
-        email,
-        name,
-        avatar: picture,
-        provider: "google",
-      });
-    }
-
-    // 4️⃣ Générer TON token (JWT)
-    const accessToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    // 5️⃣ Répondre au frontend
-    res.status(200).json({
-      accessToken,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        avatar: user.avatar,
-      },
-    });
-
-  } catch (error) {
-    console.error("Google auth error:", error);
-    res.status(401).json({ message: "Token Google invalide" });
-  }
 });
+
 
 // ============================================
 // ROUTES ADMIN POUR GESTION DES COMMUNES
