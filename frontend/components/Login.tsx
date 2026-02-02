@@ -9,14 +9,17 @@ import {
   Divider,
   Link,
   Stack,
-} from "@mui/material";
-import { Google as GoogleIcon } from "@mui/icons-material";
-import { useSnackbar } from "notistack";
-import { login } from "../services/api";
+  Snackbar
+} from '@mui/material';
+import { Google as GoogleIcon } from '@mui/icons-material';
+import { useSnackbar } from 'notistack';
+import { login } from '../services/api';
+import {useNavigate} from "react-router-dom";
 
 export function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -28,10 +31,10 @@ export function Login() {
       const response = await login(email, password);
 
       if (response.success) {
-        enqueueSnackbar(`Bienvenue ${response.user.email} !`, {
-          variant: "success",
-        });
-        // TODO: Redirection vers le dashboard admin
+        enqueueSnackbar(`Bienvenue ${response.user.email} !`, { variant: 'success' });
+        // TODO: Redirection vers le dashboard ou stockage du token
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/admin/communes');
       } else {
         enqueueSnackbar(response.message || "Connexion échouée", {
           variant: "error",

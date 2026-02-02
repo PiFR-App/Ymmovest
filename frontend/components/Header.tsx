@@ -17,6 +17,7 @@ import {
   Assessment,
   Description,
 } from "@mui/icons-material";
+import {useNavigate} from "react-router-dom";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -25,7 +26,9 @@ interface HeaderProps {
 }
 
 export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
-  const viewLabels: Record<string, string> = {
+    const navigate = useNavigate();
+
+    const viewLabels: Record<string, string> = {
     home: "Accueil",
     dashboard: "Tableau de bord",
     details: "Simulation détaillée",
@@ -52,6 +55,7 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ justifyContent: "space-between", py: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <Button onClick={()=> navigate('/')} sx={{ color: "text.secondary" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
                 sx={{
@@ -82,6 +86,7 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
                 Ymmovest
               </Typography>
             </Box>
+              </Button>
 
             {currentView !== "home" && (
               <Breadcrumbs sx={{ display: { xs: "none", md: "flex" } }}>
@@ -105,8 +110,8 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
             variant="outlined"
             size="small"
             sx={{ textTransform: "none", mr: 2 }}
-            onClick={() => (window.location.href = "/login")}
-          >
+            onClick={()=> navigate('login')}
+            >
             Connexion
           </Button>
           <Button

@@ -1,15 +1,17 @@
 const express = require("express");
 const cors = require('cors');
+    const path = require("path");
 const { Pool } = require('pg');
-
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
-
+const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yaml'));
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
 
 const connectionString = process.env.DATABASE_URL;
@@ -17,10 +19,6 @@ const pool = new Pool({ connectionString });
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is running" });
-});
-
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
 });
 
 app.get("/health", async (req, res) => {
@@ -301,6 +299,15 @@ app.delete("/api/admin/communes/:id", async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression de la commune", error: err.message });
   }
 });
+
+
+app.get("/api/docs.json", async (req, res) => {
+    res.status(200).json(swaggerDocument);
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
 
 // ============================================
 // ROUTES ADMIN POUR GESTION DES UTILISATEURS

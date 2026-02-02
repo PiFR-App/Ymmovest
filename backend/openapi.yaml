@@ -1,0 +1,110 @@
+# yaml
+                # `backend/swagger.yaml`
+                openapi: 3.0.3
+                info:
+                  title: Ymmovest API
+                  version: 1.0.0
+                  description: Documentation de l\'API Ymmovest
+                servers:
+                  - url: http://localhost:5000
+                paths:
+                  /:
+                    get:
+                      summary: Statut de l\'API
+                      responses:
+                        200:
+                          description: OK
+                  /health:
+                    get:
+                      summary: Statut du service et base de données
+                      responses:
+                        200:
+                          description: OK
+                        500:
+                          description: Erreur serveur
+                  /api/communes:
+                    get:
+                      summary: Recherche de communes
+                      parameters:
+                        - in: query
+                          name: q
+                          schema:
+                            type: string
+                          required: true
+                          description: Nom, code postal ou code INSEE
+                      responses:
+                        200:
+                          description: Liste des communes
+                  /api/communes/{code}:
+                    get:
+                      summary: Détails d\'une commune
+                      parameters:
+                        - in: path
+                          name: code
+                          required: true
+                          schema:
+                            type: string
+                      responses:
+                        200:
+                          description: Commune trouvée
+                        404:
+                          description: Commune non trouvée
+                  /api/communes/{code}/stats:
+                    get:
+                      summary: Statistiques d\'une commune
+                      parameters:
+                        - in: path
+                          name: code
+                          required: true
+                          schema:
+                            type: string
+                        - in: query
+                          name: type
+                          schema:
+                            type: string
+                            enum: [appartement, maison]
+                      responses:
+                        200:
+                          description: Statistiques calculées
+                        404:
+                          description: Commune non trouvée
+                  /api/communes/{code}/loyer:
+                    get:
+                      summary: Estimation du loyer mensuel
+                      parameters:
+                        - in: path
+                          name: code
+                          required: true
+                          schema:
+                            type: string
+                        - in: query
+                          name: surface
+                          schema:
+                            type: number
+                      responses:
+                        200:
+                          description: Estimation retournée
+                        404:
+                          description: Commune non trouvée
+                  /api/auth/login:
+                    post:
+                      summary: Connexion admin
+                      requestBody:
+                        required: true
+                        content:
+                          application/json:
+                            schema:
+                              type: object
+                              properties:
+                                email:
+                                  type: string
+                                password:
+                                  type: string
+                      responses:
+                        200:
+                          description: Connexion réussie
+                        401:
+                          description: Identifiants invalides
+                        403:
+                          description: Accès interdit
+                components: {}

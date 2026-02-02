@@ -9,7 +9,7 @@ import { Login } from "./components/Login";
 import { AdminPanel } from "./components/AdminPanel";
 import { CitiesManagement } from "./components/CitiesManagement";
 import { UsersManagement } from "./components/UsersManagement";
-import ApiDocs from "./components/Swagger";
+import SwaggerUiComponent from "./components/SwaggerUiComponent";
 
 export const routes: RouteObject[] = [
   {
@@ -36,6 +36,10 @@ export const routes: RouteObject[] = [
         path: "login",
         Component: Login,
       },
+        {
+            path: "admin/docs",
+            Component: SwaggerUiComponent,
+        },
       {
         path: "admin",
         Component: AdminPanel,
