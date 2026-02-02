@@ -1,110 +1,351 @@
-# yaml
-                # `backend/swagger.yaml`
-                openapi: 3.0.3
-                info:
-                  title: Ymmovest API
-                  version: 1.0.0
-                  description: Documentation de l\'API Ymmovest
-                servers:
-                  - url: http://localhost:5000
-                paths:
-                  /:
-                    get:
-                      summary: Statut de l\'API
-                      responses:
-                        200:
-                          description: OK
-                  /health:
-                    get:
-                      summary: Statut du service et base de données
-                      responses:
-                        200:
-                          description: OK
-                        500:
-                          description: Erreur serveur
-                  /api/communes:
-                    get:
-                      summary: Recherche de communes
-                      parameters:
-                        - in: query
-                          name: q
-                          schema:
-                            type: string
-                          required: true
-                          description: Nom, code postal ou code INSEE
-                      responses:
-                        200:
-                          description: Liste des communes
-                  /api/communes/{code}:
-                    get:
-                      summary: Détails d\'une commune
-                      parameters:
-                        - in: path
-                          name: code
-                          required: true
-                          schema:
-                            type: string
-                      responses:
-                        200:
-                          description: Commune trouvée
-                        404:
-                          description: Commune non trouvée
-                  /api/communes/{code}/stats:
-                    get:
-                      summary: Statistiques d\'une commune
-                      parameters:
-                        - in: path
-                          name: code
-                          required: true
-                          schema:
-                            type: string
-                        - in: query
-                          name: type
-                          schema:
-                            type: string
-                            enum: [appartement, maison]
-                      responses:
-                        200:
-                          description: Statistiques calculées
-                        404:
-                          description: Commune non trouvée
-                  /api/communes/{code}/loyer:
-                    get:
-                      summary: Estimation du loyer mensuel
-                      parameters:
-                        - in: path
-                          name: code
-                          required: true
-                          schema:
-                            type: string
-                        - in: query
-                          name: surface
-                          schema:
-                            type: number
-                      responses:
-                        200:
-                          description: Estimation retournée
-                        404:
-                          description: Commune non trouvée
-                  /api/auth/login:
-                    post:
-                      summary: Connexion admin
-                      requestBody:
-                        required: true
-                        content:
-                          application/json:
-                            schema:
-                              type: object
-                              properties:
-                                email:
-                                  type: string
-                                password:
-                                  type: string
-                      responses:
-                        200:
-                          description: Connexion réussie
-                        401:
-                          description: Identifiants invalides
-                        403:
-                          description: Accès interdit
-                components: {}
+openapi: 3.0.3
+info:
+  title: Ymmovest API
+  version: 1.0.0
+  description: Documentation de l'API Ymmovest
+servers:
+  - url: http://localhost:5000
+paths:
+  /:
+    get:
+      summary: Statut du service et base de données
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type:
+                      string
+        500:
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  error:
+                    type: string
+  /api/communes:
+    get:
+      summary: Recherche de communes
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          required: true
+          description: Nom, code postal ou code INSEE
+      responses:
+        200:
+          description: Liste des communes
+  /api/communes/{code}:
+    get:
+      summary: Détails d'une commune
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Commune trouvée
+        404:
+          description: Commune non trouvée
+  /api/communes/{code}/stats:
+    get:
+      summary: Statistiques d'une commune
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [ appartement, maison ]
+      responses:
+        200:
+          description: Statistiques calculées
+        404:
+          description: Commune non trouvée
+  /api/communes/{code}/loyer:
+    get:
+      summary: Estimation du loyer mensuel
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: surface
+          schema:
+            type: number
+      responses:
+        200:
+          description: Estimation retournée
+        404:
+          description: Commune non trouvée
+  /api/auth/login:
+    post:
+      summary: Connexion admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Connexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  user:
+                    type:
+                      objectproperties:
+                        id:
+                          type: integer
+                        email:
+                          type: string
+                        role:
+                          type: string
+        400:
+          description: Données manquantes
+        401:
+          description: Identifiants invalides
+        403:
+          description: Accès réservé aux administrateurs
+        500:
+          description: Erreur serveur
+  /api/docs.json:
+    get:
+      summary: Documentation OpenAPI au format JSON
+      responses:
+        200:
+          description: Spécification OpenAPI
+  /api/admin/communes:
+    get:
+      summary: Récupérer toutes les communes (Admin)
+      tags:
+        - Admin
+      responses:
+        200:
+          description: Liste complète des communes
+        500:
+          description: Erreur serveur
+    post:
+      summary: Créer une nouvelle commune (Admin)
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - nom
+                - codePostal
+                - prixM2Median
+                - prixM2Min
+                - prixM2Max
+                - evolution1An
+                - nombreTransactions
+                - loyerM2Median
+              properties:
+                code:
+                  type: string
+                nom:
+                  type: string
+                codePostal:
+                  type: string
+                prixM2Median:
+                  type: number
+                prixM2Min:
+                  type: number
+                prixM2Max:
+                  type: number
+                evolution1An:
+                  type: number
+                nombreTransactions:
+                  type: integer
+                loyerM2Median:
+                  type: number
+      responses:
+        201:
+          description: Commune créée
+        400:
+          description: Champs requis manquants
+        500:
+          description: Erreur serveur
+  /api/admin/communes/{id}:
+    put:
+      summary: Modifier une commune (Admin)
+      tags:
+        - Admin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                nom:
+                  type: string
+                codePostal:
+                  type: string
+                prixM2Median:
+                  type: number
+                prixM2Min:
+                  type: number
+                prixM2Max:
+                  type: number
+                evolution1An:
+                  type: number
+                nombreTransactions:
+                  type: integer
+                loyerM2Median:
+                  type: number
+      responses:
+        200:
+          description: Commune modifiée
+        404:
+          description: Commune non trouvée
+        500:
+          description: Erreur serveur
+    delete:
+      summary: Supprimer une commune (Admin)
+      tags:
+        - Admin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Commune supprimée
+        404:
+          description: Commune non trouvée
+        500:
+          description: Erreur serveur
+  /api/admin/users:
+    get:
+      summary: Récupérer tous les utilisateurs (Admin)
+      tags:
+        - Admin
+      responses:
+        200:
+          description: Liste des utilisateurs
+        500:
+          description: Erreur serveur
+    post:
+      summary: Créer un nouvel utilisateur (Admin)
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - role
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        201:
+          description: Utilisateur créé
+        400:
+          description: Champs requis manquants ou email déjà utilisé
+        500:
+          description: Erreur serveur
+  /api/admin/users/{id}:
+    put:
+      summary: Modifier un utilisateur (Admin)
+      tags:
+        - Admin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        200:
+          description: Utilisateur modifié
+        400:
+          description: Email déjà utilisé
+        404:
+          description: Utilisateur non trouvé
+        500:
+          description: Erreur serveur
+    delete:
+      summary: Supprimer un utilisateur (Admin)
+      tags:
+        - Admin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Utilisateur supprimé
+        404:
+          description: Utilisateur non trouvé
+        500:
+          description: Erreur serveur
+components: { }
