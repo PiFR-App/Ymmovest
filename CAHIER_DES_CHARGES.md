@@ -1,5 +1,5 @@
 # Cahier des charges – Ymmovest
-
+PASERO AUGUSTE, FULINE MAXIME, FRAGALE THEO
 ---
 
 ## 1. Présentation du sujet Web service
@@ -125,15 +125,8 @@
                           ┌──────────────┴────────────────┐
                           │ FC9: Dépendance Internet      │
                           │ FC10: Performance applicative │
-                          └──────────────┬────────────────┘
-                            ╭────────────▼───────────────╮
-                           ╱      ENVIRONNEMENT          ╲
-                          │   • Navigateurs web           │
-                          │   • Connexion Internet        │
-                          │   • Multi-devices (PC,        │
-                          │     tablette, mobile)         │
-                           ╲                              ╱
-                            ╰────────────────────────────╯
+                          └───────────────────────────────┘
+
 ```
 
 ### Légende
