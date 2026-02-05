@@ -35,8 +35,9 @@
 ### Représentation graphique
 
 ```
-        ╭─────────────────────────╮                      ╭─────────────────────────╮
-       ╱                           ╲                    ╱                           ╲
+        ╭─────────────────────────╮                     ╭─────────────────────────╮
+       ╱                           ╲                   ╱                           ╲
+      │                            │                  │                            │
       │  • Investisseurs           │                  │  • Données foncières       │
       │    particuliers            │                  │    (DVF+)                  │
       │  • Professionnels          │                  │  • Marchés immobiliers     │
@@ -66,7 +67,6 @@
                                           ▼
                               ╭───────────────────────────╮
                              ╱                             ╲
-                            │      DANS QUEL BUT ?         │
                             │                              │
                             │  Faciliter la prise de       │
                             │  décision d'investissement   │
@@ -84,41 +84,62 @@
 ### Représentation graphique
 
 ```
-                        ╔═══════════════╗
-            FC1 ────────║   API DVF+    ║
-         (Connexion)    ║  (Externes)   ║
-                        ╚═══════════════╝
-                               │
-                               │
-        ╔═══════════════╗      │      ╔═══════════════╗
-   FC2  ║  Adaptation   ║──────┼──────║  Continuité   ║  FC3
-        ║   aux APIs    ║      │      ║  de service   ║
-        ╚═══════════════╝      │      ╚═══════════════╝
-                               │
-                               ▼
-        ╔═══════════════╗  ┌───────────────┐  ╔═══════════════╗
-   FC4  ║  Conformité   ║──│               │──║  Protection   ║  FC5
-        ║     RGPD      ║──│   YMMOVEST    │──║  des données  ║
-        ╚═══════════════╝  │               │  ╚═══════════════╝
-                           │   Simulateur  │
-        ╔═══════════════╗  │  Immobilier   │  ╔═══════════════╗
-   FC6  ║  Respect des  ║──│               │──║ Compatibilité ║  FC7
-        ║   licences    ║──│               │──║  navigateurs  ║
-        ╚═══════════════╝  └───────┬───────┘  ╚═══════════════╝
-                               │   │
-                               │   │
-        ╔═══════════════╗      │   │      ╔═══════════════╗
-   FC8  ║ Multi-support ║──────┤   └──────║  Dépendance   ║  FC9
-        ║  (Responsive) ║      │          ║   Internet    ║
-        ╚═══════════════╝      │          ╚═══════════════╝
-                               │
-                               │
-                        ╔══════▼══════╗
-                   FC10 ║ Performance ║
-                        ║ Applicative ║
-                        ╚═════════════╝
+    ╭──────────────────────────╮                              ╭──────────────────────────╮
+   ╱  INVESTISSEURS            ╲         FP1, FP2, FP4       ╱   DONNÉES DVF+            ╲
+  │   • Particuliers            │◄────────────────────────── │   • Transactions          │
+  │   • Professionnels          │         (Recherche,        │   • Prix immobiliers      │
+  │   • Gestionnaires           │       Estimation prix,     │   • Statistiques marché   │
+  │     patrimoine              │        Simulation)         │                           │
+  │   • Agences immobilières    │                            │  ┌────────────────────┐  │
+   ╲                           ╱                              ╲ │ FC1: Connexion API │ ╱
+    ╰──────────┬───────────────╯                              ╰─┤ FC2: Adaptation    ├─╯
+               │                                                └────────────────────┘
+               │ FP5: Visualisation                                      │
+               │      des données                         ┌──────────────┴─────────────┐
+               │                                          │ FC3: Continuité de service │
+               │              ╭────────────────────────╮  └────────────────┬───────────┘
+               │             ╱                          ╲                  │
+               └────────────│        YMMOVEST           │◄─────────────────┘
+                            │                           │
+  ┌──────────────────────┐  │     Simulateur            │  ┌──────────────────────┐
+  │ FC7: Compatibilité   │─►│     Immobilier            │◄─│ FC6: Respect des     │
+  │      navigateurs     │  │                           │  │      licences        │
+  └──────────────────────┘  │                           │  └──────────────────────┘
+                            │                           │
+  ┌──────────────────────┐  │                           │  ┌──────────────────────┐
+  │ FC8: Multi-support   │─►│                           │◄─│ FC4: Conformité RGPD │
+  │    (Responsive)      │   ╲                          ╱  │ FC5: Protection      │
+  └──────────────────────┘    ╰──────────┬──────────────╯  │      des données     │
+                                         │                  └──────────────────────┘
+                                         │ FP3: Estimation
+                                         │      loyers
+                            ╭────────────▼──────────────╮
+                           ╱   MARCHÉS IMMOBILIERS      ╲
+                          │   • Taux de crédit           │
+                          │   • Loyers médians           │
+                          │   • Évolutions du marché     │
+                          │   • Rendements locatifs      │
+                           ╲                             ╱
+                            ╰────────────┬───────────────╯
+                                         │
+                          ┌──────────────┴────────────────┐
+                          │ FC9: Dépendance Internet      │
+                          │ FC10: Performance applicative │
+                          └──────────────┬────────────────┘
+                            ╭────────────▼───────────────╮
+                           ╱      ENVIRONNEMENT          ╲
+                          │   • Navigateurs web           │
+                          │   • Connexion Internet        │
+                          │   • Multi-devices (PC,        │
+                          │     tablette, mobile)         │
+                           ╲                              ╱
+                            ╰────────────────────────────╯
 ```
 
+### Légende
+
+**FP = Fonction Principale** : Interaction directe entre Ymmovest et ses utilisateurs/données pour répondre au besoin  
+**FC = Fonction Contrainte** : Contrainte technique, légale ou ergonomique imposée par l'environnement
 ### Fonctions Principales (FP)
 
 | Code | Fonction Principale | Description |
