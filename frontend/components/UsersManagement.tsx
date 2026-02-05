@@ -47,7 +47,6 @@ export function UsersManagement() {
     try {
       setLoading(true);
       const data = await getAllUsers();
-      console.log(data);
       setUsers(data);
     } catch (error: any) {
       enqueueSnackbar('Erreur lors du chargement des utilisateurs', { variant: 'error' });
