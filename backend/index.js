@@ -1,12 +1,31 @@
+// Charger les variables d'environnement en premier
+require('dotenv').config();
+
 const express = require("express");
 const cors = require('cors');
-    const path = require("path");
+const path = require("path");
 const { Pool } = require('pg');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+const { OAuth2Client } = require('google-auth-library');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Vérifier que les variables d'environnement critiques sont présentes
+if (!process.env.GOOGLE_CLIENT_ID) {
+    console.error('ERREUR: GOOGLE_CLIENT_ID non défini dans .env');
+}
+if (!process.env.JWT_SECRET) {
+    console.error('ERREUR: JWT_SECRET non défini dans .env');
+}
+if (!process.env.DATABASE_URL) {
+    console.error('ERREUR: DATABASE_URL non défini dans .env');
+}
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 app.use(express.json());
 app.use(cors());
 const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yaml'));
@@ -128,7 +147,11 @@ app.get("/api/communes/:code/loyer", async (req, res) => {
   }
 });
 
-// Login endpoint
+
+// ============================================
+// ROUTES ADMIN POUR CONNEXIONS
+// ============================================
+
 app.post("/api/auth/login", async (req, res) => {
     const { email, password } = req.body;
 
@@ -162,7 +185,6 @@ app.post("/api/auth/login", async (req, res) => {
         }
 
         // Comparer le mot de passe avec le hash en base
-        const bcrypt = require('bcrypt');
         const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
         if (!passwordMatch) {
@@ -191,6 +213,48 @@ app.post("/api/auth/login", async (req, res) => {
         });
     }
 });
+
+app.post("/api/auth/google", async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ message: 'Token manquant' });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const email = payload.email;
+
+        const result = await pool.query(
+            'SELECT id, email, role FROM users WHERE email = $1',
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({
+                message: "Email non autorisé"
+            });
+        }
+
+        const user = result.rows[0];
+
+        const jwtToken = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.json({ token: jwtToken, user });
+    } catch (error) {
+        return res.status(401).json({ message: 'token google invalide', error: error.message });
+    }
+});
+
 
 // ============================================
 // ROUTES ADMIN POUR GESTION DES COMMUNES
