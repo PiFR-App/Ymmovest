@@ -13,73 +13,120 @@
 ## 2. Matrice SWOT
 
 | **Forces** | **Faiblesses** |
-|-----------|---------------|
-| - Accès à des données foncières publiques fiables (DVF, Banque de France)<br>- Calculs financiers complets : rentabilité, cash flow, TRI<br>- Interface intuitive et responsive<br>- Architecture moderne et scalable (Docker, PostgreSQL, React)<br>- Positionnement accessible pour particuliers et petits investisseurs | - Nécessité de formation continue sur les API et données immobilières<br>- Ressources limitées (temps, budget, équipe)<br>- Couverture fonctionnelle encore inférieure aux outils professionnels établis<br>- Dépendance aux API externes (DVF, Banque de France) |
+|------------|----------------|
+| - Accès à des données foncières publiques fiables (DVF, Banque de France) | - Nécessité de formation continue sur les API et données immobilières |
+| - Calculs financiers complets : rentabilité, cash flow, TRI | - Ressources limitées (temps, budget, équipe) |
+| - Interface intuitive et responsive | - Couverture fonctionnelle encore inférieure aux outils professionnels établis |
+| - Architecture moderne et scalable (Docker, PostgreSQL, React) | - Dépendance aux API externes (DVF, Banque de France) |
+| - Positionnement accessible pour particuliers et petits investisseurs | |
 
 | **Opportunités** | **Menaces** |
-|-----------------|-------------|
-| - Forte demande d'outils de simulation pour investisseurs particuliers<br>- Démocratisation de l'investissement locatif en France<br>- Potentiel de partenariats avec agences immobilières, courtiers et gestionnaires<br>- Croissance du marché de l'analyse de données immobilières<br>- Évolution vers des décisions d'investissement basées sur la data | - Concurrence croissante des plateformes de simulation professionnelles<br>- Changement ou fermeture d'API (DVF, Banque de France)<br>- Risques liés à la réglementation des données (RGPD)<br>- Qualité et granularité variables des données selon les zones géographiques<br>- Volatilité du marché immobilier |
+|------------------|-------------|
+| - Forte demande d'outils de simulation pour investisseurs particuliers | - Concurrence croissante des plateformes de simulation professionnelles |
+| - Démocratisation de l'investissement locatif en France | - Changement ou fermeture d'API (DVF, Banque de France) |
+| - Potentiel de partenariats avec agences immobilières, courtiers et gestionnaires | - Risques liés à la réglementation des données (RGPD) |
+| - Croissance du marché de l'analyse de données immobilières | - Qualité et granularité variables des données selon les zones géographiques |
+| - Évolution vers des décisions d'investissement basées sur la data | - Volatilité du marché immobilier |
 
 ---
 
+
 ## 3. Diagramme Bête à cornes
 
+### Représentation graphique
+
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                                                                     │
-│   À QUI REND-IL SERVICE ?                                          │
-│   • Investisseurs particuliers                                     │
-│   • Professionnels de l'immobilier                                │
-│   • Gestionnaires de patrimoine                                    │
-│   • Agences immobilières                                           │
-│                                                                     │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│                         YMMOVEST                                    │
-│         Simulateur d'investissement immobilier                      │
-│                                                                     │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│   SUR QUOI AGIT-IL ?                                               │
-│   • Données foncières (DVF+)                                       │
-│   • Estimations de prix et loyers                                  │
-│   • Taux de crédit immobilier                                      │
-│   • Simulations financières                                        │
-│                                                                     │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│   DANS QUEL BUT ?                                                  │
-│   Estimer la rentabilité potentielle d'un investissement           │
-│   immobilier locatif et faciliter la prise de décision             │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+        ╭─────────────────────────╮                      ╭─────────────────────────╮
+       ╱                           ╲                    ╱                           ╲
+      │   À QUI REND-IL SERVICE ?  │                  │     SUR QUOI AGIT-IL ?     │
+      │                            │                  │                            │
+      │  • Investisseurs           │                  │  • Données foncières       │
+      │    particuliers            │                  │    (DVF+)                  │
+      │  • Professionnels          │                  │  • Marchés immobiliers     │
+      │    de l'immobilier         │                  │  • Estimations prix        │
+      │  • Gestionnaires           │                  │    et loyers               │
+      │    de patrimoine           │                  │  • Taux de crédit          │
+      │  • Agences immobilières    │                  │  • Simulations             │
+       ╲                           ╱                    ╲    financières           ╱
+        ╰─────────────┬───────────╯                      ╰────────┬──────────────╯
+                      │                                           │
+                      │                                           │
+                      └───────────────────┬───────────────────────┘
+                                          │
+                                          ▼
+                              ╭─────────────────────────╮
+                             ╱                           ╲
+                            │         YMMOVEST           │
+                            │                            │
+                            │   Simulateur d'estimation  │
+                            │   et d'analyse             │
+                            │   d'investissement         │
+                            │   immobilier locatif       │
+                             ╲                           ╱
+                              ╰───────────┬─────────────╯
+                                          │
+                                          │
+                                          ▼
+                              ╭───────────────────────────╮
+                             ╱                             ╲
+                            │      DANS QUEL BUT ?         │
+                            │                              │
+                            │  Faciliter la prise de       │
+                            │  décision d'investissement   │
+                            │  en estimant la rentabilité  │
+                            │  potentielle d'un bien       │
+                            │  immobilier locatif          │
+                             ╲                             ╱
+                              ╰───────────────────────────╯
 ```
 
 ---
 
 ## 4. Diagramme Pieuvre
 
+### Représentation graphique
+
 ```
-                    ┌──────────────┐
-        FC1 ────────│   API DVF+   │
-                    └──────────────┘
-                           │
-                           │
-        FC2 ───────────────┼────────────── FC3
-                           │
-                    ┌──────▼──────┐
-        FC4 ────────│             │──────── FC5
-                    │  YMMOVEST   │
-        FC6 ────────│             │──────── FC7
-                    └──────▲──────┘
-                           │
-                           │
-        FC8 ───────────────┼────────────── FC9
-                           │
-                           │
-                    ┌──────┴──────┐
-        FC10 ───────│ Utilisateur │
-                    └─────────────┘
+                        ╔═══════════════╗
+            FC1 ────────║   API DVF+    ║
+         (Connexion)    ║  (Externes)   ║
+                        ╚═══════════════╝
+                               │
+                               │
+        ╔═══════════════╗      │      ╔═══════════════╗
+   FC2  ║  Adaptation   ║──────┼──────║  Continuité   ║  FC3
+        ║   aux APIs    ║      │      ║  de service   ║
+        ╚═══════════════╝      │      ╚═══════════════╝
+                               │
+                               ▼
+        ╔═══════════════╗  ┌───────────────┐  ╔═══════════════╗
+   FC4  ║  Conformité   ║──│               │──║  Protection   ║  FC5
+        ║     RGPD      ║──│   YMMOVEST    │──║  des données  ║
+        ╚═══════════════╝  │               │  ╚═══════════════╝
+                           │   Simulateur  │
+        ╔═══════════════╗  │  Immobilier   │  ╔═══════════════╗
+   FC6  ║  Respect des  ║──│               │──║ Compatibilité ║  FC7
+        ║   licences    ║──│               │──║  navigateurs  ║
+        ╚═══════════════╝  └───────┬───────┘  ╚═══════════════╝
+                               │   │
+                               │   │
+        ╔═══════════════╗      │   │      ╔═══════════════╗
+   FC8  ║ Multi-support ║──────┤   └──────║  Dépendance   ║  FC9
+        ║  (Responsive) ║      │          ║   Internet    ║
+        ╚═══════════════╝      │          ╚═══════════════╝
+                               │
+                               │
+                        ╔══════▼══════╗
+                   FC10 ║ Performance ║
+                        ║ Applicative ║
+                        ╚═════════════╝
+                               │
+                               ▼
+                        ┏━━━━━━━━━━━━━┓
+                        ┃             ┃
+                        ┃ UTILISATEUR ┃
+                        ┃             ┃
+                        ┗━━━━━━━━━━━━━┛
 ```
 
 ### Fonctions Principales (FP)
@@ -105,29 +152,31 @@
 | **FC7** | Compatibilité navigateurs | Fonctionner sur les principaux navigateurs web (Chrome, Firefox, Safari, Edge) |
 | **FC8** | Multi-support | Être accessible sur différents supports (PC, tablette, mobile) |
 | **FC9** | Dépendance Internet | Fonctionner avec une connexion Internet standard |
-| **FC10** | Performance applicative | Garantir des temps de réponse acceptables (<2s pour les requêtes) |
+| **FC10** | Performance applicative | Garantir des temps de réponse acceptables (< 2s pour les requêtes) |
 
 ---
 
 ## 5. Analyse des contraintes et besoins
 
+
 ### Contraintes
 
-- **Technique :**
-  - Outil accessible via navigateur web (connexion Internet requise)
-  - Données issues d'API publiques (DVF+, Banque de France)
-  - Architecture conteneurisée (Docker)
-  - Base de données PostgreSQL pour stockage local
 
-- **Légales :**
-  - Respect du RGPD
-  - Hébergement des données en Europe
-  - Respect des licences de données publiques
 
-- **Ergonomiques :**
-  - Interface en français
-  - Design responsive (mobile-first)
-  - Temps de chargement < 2 secondes
+* **Techniques :**
+    * Outil accessible via navigateur web (connexion Internet requise)
+    * Données issues d'API publiques (DVF+, Banque de France)
+    * Architecture conteneurisée (Docker)
+    * Base de données PostgreSQL pour stockage local
+* **Légales :**
+    * Respect du RGPD
+    * Hébergement des données en Europe
+    * Respect des licences de données publiques
+* **Ergonomiques :**
+    * Interface en français
+    * Design responsive (mobile-first)
+    * Temps de chargement &lt; 2 secondes
+
 
 ### Besoins Fonctionnels
 
@@ -138,11 +187,9 @@
 | **BF3** | Estimation de loyer | Calcul du loyer mensuel estimé selon surface et type de bien |
 | **BF4** | Simulation financière | Calcul de rentabilité, cash flow, rendement brut/net |
 | **BF5** | Comparaison de biens | Comparer plusieurs communes ou biens côte à côte |
-| **BF6** | Historique de recherches | Sauvegarder les simulations de l'utilisateur |
-| **BF7** | Export de rapports | Générer un rapport PDF des simulations |
-| **BF8** | Gestion administrative | Interface admin pour gérer communes et utilisateurs |
-| **BF9** | Authentification | Connexion sécurisée pour les administrateurs |
-| **BF10** | Actualisation des données | Mise à jour périodique des données via API |
+| **BF6** | Gestion administrative | Interface admin pour gérer communes et utilisateurs |
+| **BF7** | Authentification | Connexion sécurisée pour les administrateurs |
+| **BF8** | Actualisation des données | Mise à jour périodique des données via API |
 
 ### Besoins Non Fonctionnels
 
@@ -161,13 +208,14 @@
 
 ## 6. Identification des utilisateurs
 
+
 ### Utilisateurs Finaux
 
 | Profil | Description | Besoins spécifiques |
 |--------|-------------|---------------------|
 | **Investisseur particulier** | Personne souhaitant réaliser son premier ou prochain investissement locatif | • Interface simple et guidée<br>• Explications pédagogiques<br>• Estimations fiables<br>• Comparaison de plusieurs biens |
 | **Investisseur expérimenté** | Professionnel de l'investissement immobilier avec plusieurs biens | • Simulations avancées<br>• Export de rapports<br>• Historique des analyses<br>• Scénarios multiples |
-| **Gestionnaire de patrimoine** | Conseiller accompagnant des clients dans leurs investissements | • Analyse comparative<br>• Personnalisation des paramètres<br>• Export professionnel<br>• Données à jour |
+| **Gestionnaire de patrimoine** | Conseiller accompagnant des clients dans leurs investissements | • Analyse comparative<br>• Personnalisation des paramètres<br>• Données à jour |
 | **Agent immobilier** | Professionnel aidant les clients à évaluer des opportunités | • Accès rapide aux statistiques<br>• Estimation de loyers<br>• Arguments de vente<br>• Interface claire |
 
 ### Utilisateurs Techniques
@@ -177,11 +225,11 @@
 | **Administrateur système** | Supervise le bon fonctionnement de l'application | • Gestion des comptes utilisateurs<br>• Gestion des droits d'accès<br>• Surveillance de la sécurité<br>• Maintenance des serveurs |
 | **Gestionnaire de données (Data Manager)** | Contrôle la qualité et la mise à jour des données | • Validation des données importées<br>• Surveillance des erreurs de flux<br>• Contrôle qualité<br>• Mise à jour des communes |
 | **Développeur / Technicien web** | Intervient pour corriger les anomalies techniques | • Correction des bugs<br>• Maintenance des connexions API<br>• Mise à jour du code<br>• Optimisation des performances |
-| **Analyste produit / Responsable technique** | Suit les performances et planifie les évolutions | • Analyse des retours utilisateurs<br>• Suivi des KPI<br>• Planification des features<br>• Veille technologique |
 
 ---
 
 ## 7. User Stories
+
 
 ### Pour les Utilisateurs Finaux
 
@@ -192,198 +240,126 @@
 | **US3** | Investisseur particulier | Estimer le loyer mensuel selon la surface | Calculer mes revenus locatifs potentiels |
 | **US4** | Investisseur expérimenté | Comparer plusieurs communes côte à côte | Identifier les meilleures opportunités d'investissement |
 | **US5** | Investisseur expérimenté | Calculer le rendement locatif brut et net | Évaluer la rentabilité de mon investissement |
-| **US6** | Gestionnaire de patrimoine | Exporter un rapport PDF de mes simulations | Présenter une analyse professionnelle à mes clients |
-| **US7** | Gestionnaire de patrimoine | Sauvegarder mes simulations | Retrouver mes analyses précédentes |
-| **US8** | Agent immobilier | Accéder aux statistiques d'évolution des prix | Argumenter mes propositions auprès des clients |
-| **US9** | Investisseur | Visualiser l'historique des transactions | Comprendre la dynamique du marché local |
-| **US10** | Investisseur | Filtrer les communes selon critères de rentabilité | Cibler les zones les plus intéressantes |
+| **US6** | Agent immobilier | Accéder aux statistiques d'évolution des prix | Argumenter mes propositions auprès des clients |
 
 ### Pour les Utilisateurs Techniques
 
 | ID | En tant que... | Je veux... | Afin de... |
 |----|----------------|-----------|------------|
-| **US11** | Administrateur | Ajouter, modifier ou supprimer des communes | Maintenir la base de données à jour |
-| **US12** | Administrateur | Gérer les comptes utilisateurs (créer, modifier, supprimer) | Contrôler les accès à l'application |
-| **US13** | Administrateur | Visualiser l'état des connexions API en temps réel | Anticiper les pannes et interruptions de service |
-| **US14** | Gestionnaire de données | Disposer de tableaux de bord de qualité des données | Garantir la fiabilité des visualisations |
-| **US15** | Gestionnaire de données | Voir les taux de complétude et erreurs de synchronisation | Identifier et corriger les problèmes de données |
-| **US16** | Développeur | Visualiser les logs d'erreurs et métriques d'utilisation | Optimiser les performances de l'application |
-| **US17** | Développeur | Accéder à la documentation API complète (OpenAPI) | Faciliter le développement et la maintenance |
-| **US18** | Analyste produit | Suivre les fonctionnalités les plus utilisées | Identifier les améliorations prioritaires |
-| **US19** | Analyste produit | Analyser le parcours utilisateur | Optimiser l'UX et le taux de conversion |
-| **US20** | Administrateur | Me connecter de manière sécurisée avec authentification | Protéger l'accès aux fonctions d'administration |
+| **US7** | Administrateur | Ajouter, modifier ou supprimer des communes | Maintenir la base de données à jour |
+| **US8** | Administrateur | Gérer les comptes utilisateurs (créer, modifier, supprimer) | Contrôler les accès à l'application |
+| **US9** | Gestionnaire de données | Disposer de tableaux de bord de qualité des données | Garantir la fiabilité des visualisations |
+| **US10** | Développeur | Visualiser les logs d'erreurs et métriques d'utilisation | Optimiser les performances de l'application |
+| **US11** | Développeur | Accéder à la documentation API complète (OpenAPI) | Faciliter le développement et la maintenance |
+| **US12** | Administrateur | Me connecter de manière sécurisée avec authentification | Protéger l'accès aux fonctions d'administration |
 
 ---
 
 ## 8. KPI (Indicateurs Clés de Performance)
+
 
 ### Pour les Investisseurs
 
 **Objectif :** Évaluer la rentabilité d'un investissement immobilier
 
 **KPIs clés :**
-- **Prix moyen au m²** (médian, min, max)
-- **Évolution des prix sur 1 an** (%)
-- **Loyer mensuel estimé** (€/mois)
-- **Rendement locatif brut** (%)
-- **Rendement locatif net** (%)
-- **Cash flow mensuel** (€/mois)
-- **TRI (Taux de Rentabilité Interne)** (%)
-- **Nombre de transactions** (indicateur de liquidité)
 
-**Visuels :** Cartes de synthèse, graphiques d'évolution, tableaux comparatifs
 
----
+
+* **Prix moyen au m²** (médian, min, max)
+* **Évolution des prix sur 1 an** (%)
+* **Loyer mensuel estimé** (€/mois)
+* **Rendement locatif brut** (%)
+* **Rendement locatif net** (%)
+* **Cash flow mensuel** (€/mois)
+* **TRI (Taux de Rentabilité Interne)** (%)
+* **Nombre de transactions** (indicateur de liquidité)
+
+
+
+
 
 ### Pour les Gestionnaires de Patrimoine
 
 **Objectif :** Comparer plusieurs opportunités d'investissement
 
 **KPIs clés :**
-- **Classement des communes par rentabilité**
-- **Ratio prix/loyer**
-- **Évolution du marché (tendances)**
-- **Zone de prix (accessible/premium)**
-- **Potentiel de plus-value**
 
-**Visuels :** Tableaux comparatifs, quadrants rendement/risque, cartes thermiques
+* **Classement des communes par rentabilité (a retiré)**
+* **Ratio prix/loyer**
+* **Évolution du marché (tendances)**
+* **Zone de prix (accessible/premium)**
+* **Potentiel de plus-value**
 
----
+
+
+
 
 ### Pour les Agents Immobiliers
 
 **Objectif :** Argumenter les propositions commerciales
 
 **KPIs clés :**
-- **Prix médian du marché**
-- **Fourchette de prix (min/max)**
-- **Loyer médian au m²**
-- **Dynamique du marché** (nombre de transactions)
-- **Évolution des prix**
 
-**Visuels :** Statistiques de marché, graphiques d'évolution, comparatifs zone
+* **Prix médian du marché**
+* **Fourchette de prix (min/max)**
+* **Loyer médian au m²**
+* **Dynamique du marché** (nombre de transactions)
+* **Évolution des prix**
 
----
-
-### Pour les Administrateurs Système
-
-**Objectif :** Supervision technique de la plateforme
-
-**KPIs clés :**
-- **Uptime API** (%)
-- **Latence moyenne** (ms)
-- **Taux d'erreurs API** (%)
-- **Volume d'appels API** (nombre/jour)
-- **Dernière synchronisation réussie** (date/heure)
-- **Nombre d'utilisateurs actifs** (DAU/MAU)
-
-**Visuels :** Dashboard temps réel, alertes, graphiques de disponibilité
-
----
-
-### Pour les Gestionnaires de Données
-
-**Objectif :** Assurer la qualité des données
-
-**KPIs clés :**
-- **Taux de complétude des données** (%)
-- **Fraîcheur des données** (dernière mise à jour)
-- **Erreurs de synchronisation** (nombre)
-- **Taux d'incohérences** (%)
-- **Score qualité global** (/100)
-- **Couverture géographique** (% communes)
-
-**Visuels :** Score qualité, heatmap des données manquantes, timeline de synchronisation
-
----
-
-### Pour les Développeurs
-
-**Objectif :** Maintenir les performances et la stabilité
-
-**KPIs clés :**
-- **Taux d'erreurs applicatives** (%)
-- **Temps de réponse moyen** (ms)
-- **Pages les plus lentes** (top 5)
-- **Crash rate** (%)
-- **Top des erreurs** (Pareto)
-- **Taux de disponibilité** (%)
-
-**Visuels :** Timeline des erreurs, diagrammes de Pareto, métriques de performance
-
----
-
-### Pour les Analystes Produit
-
-**Objectif :** Optimiser l'usage et l'adoption
-
-**KPIs clés :**
-- **DAU / MAU** (utilisateurs actifs quotidiens/mensuels)
-- **Pages les plus consultées**
-- **Durée moyenne de session** (minutes)
-- **Funnel de conversion** (recherche → simulation → export)
-- **Taux de rebond** (%)
-- **Taux de rétention** (%)
-- **NPS (Net Promoter Score)**
-
-**Visuels :** Ranking des pages, funnel de navigation, courbes de rétention
-
----
 
 ## 9. Architecture de la solution
+
 
 ### Architecture Technique
 
 **Frontend :**
-- **Framework :** React + TypeScript
-- **Routing :** React Router
-- **State Management :** Context API
-- **Styling :** CSS modules / Tailwind CSS
-- **Build :** Vite
-- **Conteneurisation :** Docker
+* **Framework :** React + TypeScript
+* **Routing :** React Router
+* **State Management :** Context API
+* **Styling :** CSS modules / Tailwind CSS
+* **Build :** Vite
+* **Conteneurisation :** Docker
 
 **Backend :**
-- **Runtime :** Node.js
-- **Framework :** Express.js
-- **API Documentation :** OpenAPI 3.0 / Swagger UI
-- **Authentification :** bcrypt pour hachage des mots de passe
-- **Conteneurisation :** Docker
+* **Runtime :** Node.js
+* **Framework :** Express.js
+* **API Documentation :** OpenAPI 3.0 / Swagger UI
+* **Authentification :** bcrypt pour hachage des mots de passe
+* **Conteneurisation :** Docker
 
 **Base de Données :**
-- **SGBD :** PostgreSQL 15
-- **Tables principales :**
-  - `prix_communes` : données des communes (prix, loyers, statistiques)
-  - `users` : utilisateurs et administrateurs
-- **Persistance :** Volumes Docker
+* **SGBD :** PostgreSQL 15
+* **Tables principales :**
+    * `prix_communes` : données des communes (prix, loyers, statistiques)
+    * `users` : utilisateurs et administrateurs
+* **Persistance :** Volumes Docker
 
 **Reverse Proxy :**
-- **Serveur :** Nginx
-- **Rôles :** Routage, SSL/TLS, load balancing
+* **Serveur :** Nginx
+* **Rôles :** Routage, SSL/TLS, load balancing
 
 **Orchestration :**
-- **Outil :** Docker Compose
-- **Services :** frontend, backend, database, nginx
+* **Outil :** Docker Compose
+* **Services :** frontend, backend, database, nginx
 
-**APIs Externes :**
-- **DVF+ (Data.gouv.fr)** : Données de transactions immobilières
-- **API Webstat (Banque de France)** : Taux de crédit immobilier
-- *Futures :* API d'estimation de loyers, géocodage (OpenStreetMap/Nominatim)
+**APIs Externes (donnée issue de ces sources mais non connecté car non dispo public) :**
+* **DVF+ (Data.gouv.fr)** : Données de transactions immobilières
+* **API Webstat (Banque de France)** : Taux de crédit immobilier
+* *Futures :* API d'estimation de loyers, géocodage (OpenStreetMap/Nominatim)
 
 **Hébergement :**
-- **Cloud :** AWS / OVH / Render
-- **CI/CD :** GitHub Actions (déploiement automatisé)
+* **Cloud :** AWS / OVH / Render (possibilité)
+* **CI/CD :** GitHub Actions (déploiement automatisé) (pas encore implémentée)
 
 **Sécurité :**
-- **HTTPS** : Certificats SSL/TLS
-- **CORS** : Configuration sécurisée
-- **Hachage des mots de passe** : bcrypt (10 rounds)
-- **Validation des entrées** : Côté client et serveur
-- **RGPD** : Conformité assurée
-
----
+* **HTTPS** : Certificats SSL/TLS
+* **CORS** : Configuration sécurisée
+* **Hachage des mots de passe** : bcrypt (10 rounds)
+* **Validation des entrées** : Côté client et serveur
+* **RGPD** : Conformité assurée
 
 ### Schéma d'Architecture
-
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                     UTILISATEUR                          │
@@ -426,80 +402,71 @@
                                        └─────────────────────┘
 ```
 
----
-
 ### Flux de Données
 
 1. **Recherche de commune :**
-   - Utilisateur saisit un nom/code postal
-   - Frontend → Backend `/api/communes?q={query}`
-   - Backend interroge PostgreSQL
-   - Retour liste de communes correspondantes
-   - Affichage des résultats
-
+    1. Utilisateur saisit un nom/code postal
+    2. Frontend → Backend `/api/communes?q={query}`
+    3. Backend interroge PostgreSQL
+    4. Retour liste de communes correspondantes
+    5. Affichage des résultats
 2. **Affichage des statistiques :**
-   - Utilisateur sélectionne une commune
-   - Frontend → Backend `/api/communes/{code}/stats?type={appartement|maison}`
-   - Backend calcule les statistiques
-   - Retour des prix médian, min, max, évolution
-   - Visualisation graphique
-
+    6. Utilisateur sélectionne une commune
+    7. Frontend → Backend `/api/communes/{code}/stats?type={appartement|maison}`
+    8. Backend calcule les statistiques
+    9. Retour des prix médian, min, max, évolution
+    10. Visualisation graphique
 3. **Estimation de loyer :**
-   - Utilisateur saisit une surface
-   - Frontend → Backend `/api/communes/{code}/loyer?surface={X}`
-   - Backend calcule le loyer estimé
-   - Retour loyer min, médian, max + rendement
-   - Affichage des résultats
-
+    11. Utilisateur saisit une surface
+    12. Frontend → Backend `/api/communes/{code}/loyer?surface={X}`
+    13. Backend calcule le loyer estimé
+    14. Retour loyer min, médian, max + rendement
+    15. Affichage des résultats
 4. **Connexion administrateur :**
-   - Admin saisit email/password
-   - Frontend → Backend `/api/auth/login` (POST)
-   - Backend vérifie credentials (bcrypt)
-   - Retour token/session
-   - Accès au panel d'administration
-
+    16. Admin saisit email/password
+    17. Frontend → Backend `/api/auth/login` (POST)
+    18. Backend vérifie credentials (bcrypt)
+    19. Retour token/session
+    20. Accès au panel d'administration
 5. **Gestion des communes (Admin) :**
-   - Admin CRUD sur communes
-   - Frontend → Backend `/api/admin/communes` (GET/POST/PUT/DELETE)
-   - Backend met à jour PostgreSQL
-   - Confirmation de l'opération
-
+    21. Admin CRUD sur communes
+    22. Frontend → Backend `/api/admin/communes` (GET/POST/PUT/DELETE)
+    23. Backend met à jour PostgreSQL
+    24. Confirmation de l'opération
 6. **Gestion des utilisateurs (Admin) :**
-   - Admin CRUD sur users
-   - Frontend → Backend `/api/admin/users` (GET/POST/PUT/DELETE)
-   - Backend met à jour PostgreSQL (hachage bcrypt pour passwords)
-   - Confirmation de l'opération
+    25. Admin CRUD sur users
+    26. Frontend → Backend `/api/admin/users` (GET/POST/PUT/DELETE)
+    27. Backend met à jour PostgreSQL (hachage bcrypt pour passwords)
+    28. Confirmation de l'opération
 
----
-
+##
 ## 10. Extensions Futures
-
 ### Phase 2 – Améliorations Fonctionnelles
+* **Scénarios multiples :** Permettre de tester différentes hypothèses (taux, vacance locative, travaux)
+* **Export PDF :** Rapports personnalisés avec graphiques et logos
+* **Historique des simulations :** Sauvegarde côté serveur avec compte utilisateur
+* **Comparaison avancée :** Comparer jusqu'à 5 biens simultanément
+* **Alertes personnalisées :** Notifications sur nouvelles opportunités
 
-- **Scénarios multiples :** Permettre de tester différentes hypothèses (taux, vacance locative, travaux)
-- **Export PDF avancé :** Rapports personnalisés avec graphiques et logos
-- **Historique des simulations :** Sauvegarde côté serveur avec compte utilisateur
-- **Comparaison avancée :** Comparer jusqu'à 5 biens simultanément
-- **Alertes personnalisées :** Notifications sur nouvelles opportunités
 
 ### Phase 3 – Intelligence Artificielle
+* **Chatbot intelligent :** Assistance conversationnelle pour guider les utilisateurs
+    * "Trouve-moi des appartements avec un rendement > 5% à Lyon"
+* **Prédictions de prix :** Modèles ML pour anticiper l'évolution des prix
+* **Recommandation personnalisée :** Suggestions basées sur le profil investisseur
 
-- **Chatbot intelligent :** Assistance conversationnelle pour guider les utilisateurs
-  - "Trouve-moi des appartements avec un rendement > 5% à Lyon"
-- **Prédictions de prix :** Modèles ML pour anticiper l'évolution des prix
-- **Recommandation personnalisée :** Suggestions basées sur le profil investisseur
 
 ### Phase 4 – Monétisation
+* **Modèle Freemium :**
+    * Gratuit : 5 simulations/mois, fonctionnalités de base
+    * Premium : Simulations illimitées, exports PDF, scénarios avancés, alertes
+* **Partenariats B2B :**
+    * Leads qualifiés pour agences immobilières
+    * White-label pour courtiers
+* **Produits complémentaires :**
+    * Assurance loyers impayés
+    * Mise en relation avec gestionnaires locatifs
 
-- **Modèle Freemium :**
-  - Gratuit : 5 simulations/mois, fonctionnalités de base
-  - Premium : Simulations illimitées, exports PDF, scénarios avancés, alertes
-- **Partenariats B2B :**
-  - Leads qualifiés pour agences immobilières
-  - White-label pour courtiers
-- **Produits complémentaires :**
-  - Assurance loyers impayés
-  - Mise en relation avec gestionnaires locatifs
 
 ---
 
@@ -517,6 +484,7 @@
 | **Erreur bcrypt (Exec format error)** | • Reconstruire l'image Docker<br>• Utiliser bcryptjs (pure JS) au lieu de bcrypt (natif)<br>• Vérifier compatibilité architecture (x86/ARM) |
 
 ---
+
 
 ## 12. Planning Prévisionnel
 
@@ -544,41 +512,82 @@
 
 ---
 
+
 ## 14. Glossaire
 
-| Terme | Définition |
-|-------|------------|
-| **DVF** | Demande de Valeurs Foncières : base de données publique des transactions immobilières en France |
-| **TRI** | Taux de Rentabilité Interne : indicateur de rentabilité d'un investissement |
-| **Cash Flow** | Flux de trésorerie généré par un investissement (loyers - charges - crédit) |
-| **Rendement brut** | (Loyers annuels / Prix d'achat) × 100 |
-| **Rendement net** | Rendement après déduction des charges, taxes et frais |
-| **RGPD** | Règlement Général sur la Protection des Données |
-| **MVP** | Minimum Viable Product : version minimale fonctionnelle du produit |
-| **API REST** | Interface de programmation permettant l'échange de données via HTTP |
-| **PostgreSQL** | Système de gestion de base de données relationnelle open-source |
-| **Docker** | Plateforme de conteneurisation d'applications |
-| **bcrypt** | Algorithme de hachage sécurisé pour les mots de passe |
 
----
+<table>
+  <tr>
+   <td>Terme
+   </td>
+   <td>Définition
+   </td>
+  </tr>
+  <tr>
+   <td><strong>DVF</strong>
+   </td>
+   <td>Demande de Valeurs Foncières : base de données publique des transactions immobilières en France
+   </td>
+  </tr>
+  <tr>
+   <td><strong>TRI</strong>
+   </td>
+   <td>Taux de Rentabilité Interne : indicateur de rentabilité d'un investissement
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Cash Flow</strong>
+   </td>
+   <td>Flux de trésorerie généré par un investissement (loyers - charges - crédit)
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Rendement brut</strong>
+   </td>
+   <td>(Loyers annuels / Prix d'achat) × 100
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Rendement net</strong>
+   </td>
+   <td>Rendement après déduction des charges, taxes et frais
+   </td>
+  </tr>
+  <tr>
+   <td><strong>RGPD</strong>
+   </td>
+   <td>Règlement Général sur la Protection des Données
+   </td>
+  </tr>
+  <tr>
+   <td><strong>MVP</strong>
+   </td>
+   <td>Minimum Viable Product : version minimale fonctionnelle du produit
+   </td>
+  </tr>
+  <tr>
+   <td><strong>API REST</strong>
+   </td>
+   <td>Interface de programmation permettant l'échange de données via HTTP
+   </td>
+  </tr>
+  <tr>
+   <td><strong>PostgreSQL</strong>
+   </td>
+   <td>Système de gestion de base de données relationnelle open-source
+   </td>
+  </tr>
+  <tr>
+   <td><strong>Docker</strong>
+   </td>
+   <td>Plateforme de conteneurisation d'applications
+   </td>
+  </tr>
+  <tr>
+   <td><strong>bcrypt</strong>
+   </td>
+   <td>Algorithme de hachage sécurisé pour les mots de passe
+   </td>
+  </tr>
+</table>
 
-## 15. Contacts et Équipe
-
-| Rôle | Responsabilité |
-|------|----------------|
-| **Chef de projet** | Coordination générale, suivi planning |
-| **Product Owner** | Définition fonctionnelle, priorisation backlog |
-| **Développeur Frontend** | Interface React, UX/UI |
-| **Développeur Backend** | API Express, gestion données |
-| **DevOps** | Architecture, déploiement, monitoring |
-| **Data Analyst** | Qualité des données, modélisation |
-
----
-
-**Date de rédaction :** 5 février 2026  
-**Version :** 1.0  
-**Statut :** Validé
-
----
-
-*Document de travail - Ymmovest - Tous droits réservés*
