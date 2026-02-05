@@ -7,7 +7,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+# Nettoyer le cache et installer les dépendances
+RUN npm cache clean --force && \
+    rm -rf node_modules && \
+    npm ci --only=production
 
 COPY . .
 

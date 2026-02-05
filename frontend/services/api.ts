@@ -43,17 +43,14 @@ export async function login(email: string, password: string) {
 }
 
 export async function googleLogin(credential: string) {
-    console.log('Envoi du token Google au backend:', credential.substring(0, 30) + '...');
-    try {
-        const res = await axios
-            .post(`/api/auth/google`, { token: credential })
-            .then((res: AxiosResponse) => res.data);
-        console.log('Réponse backend:', res);
-        return res;
-    } catch (error) {
-        console.error('Erreur complète:', error);
-        throw error;
-    }
+  try {
+    const res = await axios
+      .post(`/api/auth/google`, { token: credential })
+      .then((res: AxiosResponse) => res.data);
+    return res;
+  } catch (error) {
+    throw error;
+  }
 }
 
 // Admin CRUD pour les communes

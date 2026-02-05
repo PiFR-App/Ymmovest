@@ -1,13 +1,29 @@
+// Charger les variables d'environnement en premier
+require('dotenv').config();
+
 const express = require("express");
 const cors = require('cors');
-    const path = require("path");
+const path = require("path");
 const { Pool } = require('pg');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const app = express();
-const PORT = process.env.PORT || 5000;
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Vérifier que les variables d'environnement critiques sont présentes
+if (!process.env.GOOGLE_CLIENT_ID) {
+    console.error('ERREUR: GOOGLE_CLIENT_ID non défini dans .env');
+}
+if (!process.env.JWT_SECRET) {
+    console.error('ERREUR: JWT_SECRET non défini dans .env');
+}
+if (!process.env.DATABASE_URL) {
+    console.error('ERREUR: DATABASE_URL non défini dans .env');
+}
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 app.use(express.json());
@@ -169,7 +185,6 @@ app.post("/api/auth/login", async (req, res) => {
         }
 
         // Comparer le mot de passe avec le hash en base
-        const bcrypt = require('bcrypt');
         const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
         if (!passwordMatch) {
@@ -204,7 +219,6 @@ app.post("/api/auth/google", async (req, res) => {
         const { token } = req.body;
 
         if (!token) {
-            console.error('Token manquant dans la requête');
             return res.status(400).json({ message: 'Token manquant' });
         }
 
@@ -212,7 +226,6 @@ app.post("/api/auth/google", async (req, res) => {
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
-        console.log('Token validé avec succès');
 
         const payload = ticket.getPayload();
         const email = payload.email;
@@ -238,11 +251,6 @@ app.post("/api/auth/google", async (req, res) => {
 
         res.json({ token: jwtToken, user });
     } catch (error) {
-        console.error('Erreur validation Google:', {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
-        });
         return res.status(401).json({ message: 'token google invalide', error: error.message });
     }
 });
