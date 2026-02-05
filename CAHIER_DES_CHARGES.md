@@ -14,19 +14,18 @@
 
 | **Forces** | **Faiblesses** |
 |------------|----------------|
-| - Accès à des données foncières publiques fiables (DVF, Banque de France) | - Nécessité de formation continue sur les API et données immobilières |
-| - Calculs financiers complets : rentabilité, cash flow, TRI | - Ressources limitées (temps, budget, équipe) |
-| - Interface intuitive et responsive | - Couverture fonctionnelle encore inférieure aux outils professionnels établis |
-| - Architecture moderne et scalable (Docker, PostgreSQL, React) | - Dépendance aux API externes (DVF, Banque de France) |
-| - Positionnement accessible pour particuliers et petits investisseurs | |
+| - Algorithmes personnalisés : rentabilité, cash flow, TRI | - Nécessité de formation continue sur les API et données immobilières |
+| Utilisation de l'IA | - Ressources limitées (temps, budget, équipe) |
+| Maîtrise des technologies | - Couverture fonctionnelle encore inférieure aux outils professionnels établis |
 
 | **Opportunités** | **Menaces** |
 |------------------|-------------|
+| - Accès à des données foncières publiques fiables (DVF, Banque de France) |  - Volatilité du marché immobilier 
 | - Forte demande d'outils de simulation pour investisseurs particuliers | - Concurrence croissante des plateformes de simulation professionnelles |
 | - Démocratisation de l'investissement locatif en France | - Changement ou fermeture d'API (DVF, Banque de France) |
 | - Potentiel de partenariats avec agences immobilières, courtiers et gestionnaires | - Risques liés à la réglementation des données (RGPD) |
 | - Croissance du marché de l'analyse de données immobilières | - Qualité et granularité variables des données selon les zones géographiques |
-| - Évolution vers des décisions d'investissement basées sur la data | - Volatilité du marché immobilier |
+| - Évolution vers des décisions d'investissement basées sur la data ||
 
 ---
 
@@ -38,8 +37,6 @@
 ```
         ╭─────────────────────────╮                      ╭─────────────────────────╮
        ╱                           ╲                    ╱                           ╲
-      │   À QUI REND-IL SERVICE ?  │                  │     SUR QUOI AGIT-IL ?     │
-      │                            │                  │                            │
       │  • Investisseurs           │                  │  • Données foncières       │
       │    particuliers            │                  │    (DVF+)                  │
       │  • Professionnels          │                  │  • Marchés immobiliers     │
@@ -120,13 +117,6 @@
                    FC10 ║ Performance ║
                         ║ Applicative ║
                         ╚═════════════╝
-                               │
-                               ▼
-                        ┏━━━━━━━━━━━━━┓
-                        ┃             ┃
-                        ┃ UTILISATEUR ┃
-                        ┃             ┃
-                        ┗━━━━━━━━━━━━━┛
 ```
 
 ### Fonctions Principales (FP)
@@ -255,63 +245,53 @@
 
 ---
 
-## 8. KPI (Indicateurs Clés de Performance)
-
-
-### Pour les Investisseurs
-
-**Objectif :** Évaluer la rentabilité d'un investissement immobilier
-
-**KPIs clés :**
-
-
-
-* **Prix moyen au m²** (médian, min, max)
-* **Évolution des prix sur 1 an** (%)
-* **Loyer mensuel estimé** (€/mois)
-* **Rendement locatif brut** (%)
-* **Rendement locatif net** (%)
-* **Cash flow mensuel** (€/mois)
-* **TRI (Taux de Rentabilité Interne)** (%)
-* **Nombre de transactions** (indicateur de liquidité)
-
-
-
-
-
-### Pour les Gestionnaires de Patrimoine
-
-**Objectif :** Comparer plusieurs opportunités d'investissement
-
-**KPIs clés :**
-
-* **Classement des communes par rentabilité (a retiré)**
-* **Ratio prix/loyer**
-* **Évolution du marché (tendances)**
-* **Zone de prix (accessible/premium)**
-* **Potentiel de plus-value**
-
-
-
-
-
-### Pour les Agents Immobiliers
-
-**Objectif :** Argumenter les propositions commerciales
-
-**KPIs clés :**
-
-* **Prix médian du marché**
-* **Fourchette de prix (min/max)**
-* **Loyer médian au m²**
-* **Dynamique du marché** (nombre de transactions)
-* **Évolution des prix**
-
-
 ## 9. Architecture de la solution
 
 
 ### Architecture Technique
+
+
+### Schéma d'Architecture
+```
+┌──────────────────────────────────────────────────────────┐
+│                     UTILISATEUR                          │
+│                    (Navigateur Web)                      │
+└────────────────────┬─────────────────────────────────────┘
+                     │ HTTPS
+                     ▼
+┌──────────────────────────────────────────────────────────┐
+│                  Reverse Proxy                           │
+│              • Routage                                   │
+│              • SSL/TLS                                   │
+└────┬───────────────────────────────────────────┬─────────┘
+     │                                           │
+     │ /                                         │ /api
+     ▼                                           ▼
+┌─────────────────┐                    ┌─────────────────────┐
+│   FRONTEND      │                    │      BACKEND        │
+│                 │                    │                     │
+│ • Interface UI  │                    │ • API REST          │
+│ • Simulations   │◄───────JSON────────│ • Logique métier    │
+│ • Visualisation │                    │ • Gestion données   │
+└─────────────────┘                    └──────────┬──────────┘
+                                                  │
+                                                  │ SQL
+                                                  ▼
+                                       ┌─────────────────────┐
+                                       │   Base de données   │
+                                       │                     │
+                                       │ • prix_communes     │
+                                       │ • users             │
+                                       └─────────────────────┘
+                                                  ▲
+                                                  │
+                                       ┌──────────┴──────────┐
+                                       │   APIs Externes     │
+                                       │                     │
+                                       │ • DVF+              │
+                                       │ • Banque de France  │
+                                       └─────────────────────┘
+```
 
 **Frontend :**
 * **Framework :** React + TypeScript
@@ -358,49 +338,6 @@
 * **Hachage des mots de passe** : bcrypt (10 rounds)
 * **Validation des entrées** : Côté client et serveur
 * **RGPD** : Conformité assurée
-
-### Schéma d'Architecture
-```
-┌──────────────────────────────────────────────────────────┐
-│                     UTILISATEUR                          │
-│                    (Navigateur Web)                      │
-└────────────────────┬─────────────────────────────────────┘
-                     │ HTTPS
-                     ▼
-┌──────────────────────────────────────────────────────────┐
-│                  NGINX (Reverse Proxy)                   │
-│              • Routage                                   │
-│              • SSL/TLS                                   │
-└────┬───────────────────────────────────────────┬─────────┘
-     │                                           │
-     │ /                                         │ /api
-     ▼                                           ▼
-┌─────────────────┐                    ┌─────────────────────┐
-│   FRONTEND      │                    │      BACKEND        │
-│   (React + TS)  │                    │    (Express.js)     │
-│                 │                    │                     │
-│ • Interface UI  │                    │ • API REST          │
-│ • Simulations   │◄───────JSON────────│ • Logique métier    │
-│ • Visualisation │                    │ • Gestion données   │
-└─────────────────┘                    └──────────┬──────────┘
-                                                  │
-                                                  │ SQL
-                                                  ▼
-                                       ┌─────────────────────┐
-                                       │   PostgreSQL 15     │
-                                       │                     │
-                                       │ • prix_communes     │
-                                       │ • users             │
-                                       └─────────────────────┘
-                                                  ▲
-                                                  │
-                                       ┌──────────┴──────────┐
-                                       │   APIs Externes     │
-                                       │                     │
-                                       │ • DVF+              │
-                                       │ • Banque de France  │
-                                       └─────────────────────┘
-```
 
 ### Flux de Données
 
