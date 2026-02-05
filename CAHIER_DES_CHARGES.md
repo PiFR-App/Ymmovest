@@ -2,7 +2,7 @@
 
 ---
 
-## 1. Choix du sujet de visualisation web
+## 1. Présentation du sujet Web service
 
 **Sujet :** Outil web interactif de simulation et d'analyse d'investissement immobilier locatif.
 
@@ -245,13 +245,9 @@
 
 ---
 
-## 9. Architecture de la solution
+## 9. Architecture en web services de la solution
 
-
-### Architecture Technique
-
-
-### Schéma d'Architecture
+### Schéma d'architecture
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                     UTILISATEUR                          │
