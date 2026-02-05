@@ -46,6 +46,8 @@ paths:
   /api/communes:
     get:
       summary: Recherche de communes
+      tags:
+        - Communes
       parameters:
         - in: query
           name: q
@@ -55,72 +57,147 @@ paths:
           description: Nom, code postal ou code INSEE
       responses:
         200:
-          description: Liste des communes
+          description: Liste des communes (maximum 8 résultats)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commune'
+        500:
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/communes/{code}:
     get:
       summary: Détails d'une commune
+      tags:
+        - Communes
       parameters:
         - in: path
           name: code
           required: true
           schema:
             type: string
+          description: Code INSEE de la commune
       responses:
         200:
           description: Commune trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commune'
         404:
           description: Commune non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/communes/{code}/stats:
     get:
       summary: Statistiques d'une commune
+      tags:
+        - Communes
       parameters:
         - in: path
           name: code
           required: true
           schema:
             type: string
+          description: Code INSEE de la commune
         - in: query
           name: type
           schema:
             type: string
-            enum: [ appartement, maison ]
+            enum: [appartement, maison]
+            default: appartement
+          description: Type de bien immobilier
       responses:
         200:
           description: Statistiques calculées
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommuneStats'
         404:
           description: Commune non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/communes/{code}/loyer:
     get:
       summary: Estimation du loyer mensuel
+      tags:
+        - Communes
       parameters:
         - in: path
           name: code
           required: true
           schema:
             type: string
+          description: Code INSEE de la commune
         - in: query
           name: surface
           schema:
             type: number
+          description: Surface du bien en m²
       responses:
         200:
           description: Estimation retournée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyerEstimation'
         404:
           description: Commune non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/auth/login:
     post:
       summary: Connexion admin
+      tags:
+        - Authentification
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - email
+                - password
               properties:
                 email:
                   type: string
+                  format: email
+                  example: admin@ymmovest.com
                 password:
                   type: string
+                  format: password
+                  example: password123
       responses:
         200:
           description: Connexion réussie
@@ -131,31 +208,88 @@ paths:
                 properties:
                   success:
                     type: boolean
+                    example: true
                   message:
                     type: string
+                    example: "Connexion réussie"
                   user:
                     type: object
                     properties:
                       id:
                         type: integer
+                        example: 1
                       email:
                         type: string
+                        example: admin@ymmovest.com
                       role:
                         type: string
+                        example: admin
         400:
           description: Données manquantes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Email et mot de passe requis"
         401:
           description: Identifiants invalides
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Email ou mot de passe incorrect"
         403:
           description: Accès réservé aux administrateurs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Accès réservé aux administrateurs"
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Erreur serveur"
+                  error:
+                    type: string
   /api/docs.json:
     get:
       summary: Documentation OpenAPI au format JSON
+      tags:
+        - Documentation
       responses:
         200:
           description: Spécification OpenAPI
+          content:
+            application/json:
+              schema:
+                type: object
   /api/admin/communes:
     get:
       summary: Récupérer toutes les communes (Admin)
@@ -164,8 +298,18 @@ paths:
       responses:
         200:
           description: Liste complète des communes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commune'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       summary: Créer une nouvelle commune (Admin)
       tags:
@@ -189,29 +333,55 @@ paths:
               properties:
                 code:
                   type: string
+                  example: "69001"
                 nom:
                   type: string
+                  example: "Lyon 1er"
                 codePostal:
                   type: string
+                  example: "69001"
                 prixM2Median:
                   type: number
+                  format: float
+                  example: 5000.50
                 prixM2Min:
                   type: number
+                  format: float
+                  example: 3500.00
                 prixM2Max:
                   type: number
+                  format: float
+                  example: 7500.00
                 evolution1An:
                   type: number
+                  format: float
+                  example: 2.5
                 nombreTransactions:
                   type: integer
+                  example: 150
                 loyerM2Median:
                   type: number
+                  format: float
+                  example: 18.50
       responses:
         201:
           description: Commune créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commune'
         400:
           description: Champs requis manquants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/admin/communes/{id}:
     put:
       summary: Modifier une commune (Admin)
@@ -223,6 +393,7 @@ paths:
           required: true
           schema:
             type: integer
+          description: ID de la commune
       requestBody:
         required: true
         content:
@@ -232,29 +403,55 @@ paths:
               properties:
                 code:
                   type: string
+                  example: "69001"
                 nom:
                   type: string
+                  example: "Lyon 1er"
                 codePostal:
                   type: string
+                  example: "69001"
                 prixM2Median:
                   type: number
+                  format: float
+                  example: 5100.00
                 prixM2Min:
                   type: number
+                  format: float
+                  example: 3600.00
                 prixM2Max:
                   type: number
+                  format: float
+                  example: 7600.00
                 evolution1An:
                   type: number
+                  format: float
+                  example: 3.0
                 nombreTransactions:
                   type: integer
+                  example: 160
                 loyerM2Median:
                   type: number
+                  format: float
+                  example: 19.00
       responses:
         200:
           description: Commune modifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commune'
         404:
           description: Commune non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       summary: Supprimer une commune (Admin)
       tags:
@@ -265,13 +462,33 @@ paths:
           required: true
           schema:
             type: integer
+          description: ID de la commune
       responses:
         200:
           description: Commune supprimée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Commune supprimée avec succès"
+                  id:
+                    type: integer
+                    example: 1
         404:
           description: Commune non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/admin/users:
     get:
       summary: Récupérer tous les utilisateurs (Admin)
@@ -280,8 +497,18 @@ paths:
       responses:
         200:
           description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       summary: Créer un nouvel utilisateur (Admin)
       tags:
@@ -299,17 +526,35 @@ paths:
               properties:
                 email:
                   type: string
+                  format: email
+                  example: user@example.com
                 password:
                   type: string
+                  format: password
+                  example: securePassword123
                 role:
                   type: string
+                  enum: [admin, user]
+                  example: user
       responses:
         201:
           description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         400:
           description: Champs requis manquants ou email déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/admin/users/{id}:
     put:
       summary: Modifier un utilisateur (Admin)
@@ -321,6 +566,7 @@ paths:
           required: true
           schema:
             type: integer
+          description: ID de l'utilisateur
       requestBody:
         required: true
         content:
@@ -330,19 +576,42 @@ paths:
               properties:
                 email:
                   type: string
+                  format: email
+                  example: newemail@example.com
                 password:
                   type: string
+                  format: password
+                  description: Optionnel - nouveau mot de passe
+                  example: newPassword123
                 role:
                   type: string
+                  enum: [admin, user]
+                  example: admin
       responses:
         200:
           description: Utilisateur modifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         400:
           description: Email déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       summary: Supprimer un utilisateur (Admin)
       tags:
@@ -353,11 +622,161 @@ paths:
           required: true
           schema:
             type: integer
+          description: ID de l'utilisateur
       responses:
         200:
           description: Utilisateur supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Utilisateur supprimé avec succès"
+                  id:
+                    type: integer
+                    example: 1
         404:
           description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         500:
           description: Erreur serveur
-components: { }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Commune:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          description: Code INSEE de la commune
+          example: "69001"
+        nom:
+          type: string
+          description: Nom de la commune
+          example: "Lyon 1er"
+        codePostal:
+          type: string
+          description: Code postal
+          example: "69001"
+        prixM2Median:
+          type: number
+          format: float
+          description: Prix médian au m² en euros
+          example: 5000.50
+        prixM2Min:
+          type: number
+          format: float
+          description: Prix minimum au m² en euros
+          example: 3500.00
+        prixM2Max:
+          type: number
+          format: float
+          description: Prix maximum au m² en euros
+          example: 7500.00
+        evolution1An:
+          type: number
+          format: float
+          description: Évolution du prix sur 1 an en pourcentage
+          example: 2.5
+        nombreTransactions:
+          type: integer
+          description: Nombre de transactions immobilières
+          example: 150
+        loyerM2Median:
+          type: number
+          format: float
+          description: Loyer médian au m² en euros
+          example: 18.50
+
+    CommuneStats:
+      type: object
+      properties:
+        prixMoyenM2:
+          type: integer
+          description: Prix moyen au m² en euros
+          example: 5000
+        nombreVentes:
+          type: integer
+          description: Nombre de ventes
+          example: 150
+        prixMin:
+          type: integer
+          description: Prix minimum au m² en euros
+          example: 3500
+        prixMax:
+          type: integer
+          description: Prix maximum au m² en euros
+          example: 7500
+        surfaceMoyenne:
+          type: integer
+          description: Surface moyenne en m²
+          example: 58
+        evolution1An:
+          type: number
+          format: float
+          description: Évolution du prix sur 1 an en pourcentage
+          example: 2.5
+
+    LoyerEstimation:
+      type: object
+      properties:
+        loyerMensuelMin:
+          type: integer
+          description: Loyer mensuel minimum en euros
+          example: 850
+        loyerMensuelMedian:
+          type: integer
+          description: Loyer mensuel médian en euros
+          example: 1000
+        loyerMensuelMax:
+          type: integer
+          description: Loyer mensuel maximum en euros
+          example: 1150
+        rendementBrutEstime:
+          type: number
+          format: float
+          description: Rendement brut estimé en pourcentage
+          example: 4.5
+        source:
+          type: string
+          description: Source des données
+          example: "Base locale Postgres"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        role:
+          type: string
+          enum: [admin, user]
+          example: user
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message d'erreur
+          example: "Une erreur s'est produite"
+        error:
+          type: string
+          description: Détails de l'erreur
+          example: "Database connection failed"
+
