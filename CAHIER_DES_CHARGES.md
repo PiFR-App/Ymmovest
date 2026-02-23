@@ -1,5 +1,5 @@
 # Cahier des charges – Ymmovest
-
+PASERO AUGUSTE, FULINE MAXIME, FRAGALE THEO
 ---
 
 ## 1. Présentation du sujet Web service
@@ -15,8 +15,9 @@
 | **Forces** | **Faiblesses** |
 |------------|----------------|
 | - Algorithmes personnalisés : rentabilité, cash flow, TRI | - Nécessité de formation continue sur les API et données immobilières |
-| Utilisation de l'IA | - Ressources limitées (temps, budget, équipe) |
-| Maîtrise des technologies | - Couverture fonctionnelle encore inférieure aux outils professionnels établis |
+| - Utilisation de l'IA | - Ressources limitées (temps, budget, équipe) |
+| - Maîtrise des technologies | - Couverture fonctionnelle encore inférieure aux outils professionnels établis 
+| - Orchestration via docker compose |
 
 | **Opportunités** | **Menaces** |
 |------------------|-------------|
@@ -125,15 +126,8 @@
                           ┌──────────────┴────────────────┐
                           │ FC9: Dépendance Internet      │
                           │ FC10: Performance applicative │
-                          └──────────────┬────────────────┘
-                            ╭────────────▼───────────────╮
-                           ╱      ENVIRONNEMENT          ╲
-                          │   • Navigateurs web           │
-                          │   • Connexion Internet        │
-                          │   • Multi-devices (PC,        │
-                          │     tablette, mobile)         │
-                           ╲                              ╱
-                            ╰────────────────────────────╯
+                          └───────────────────────────────┘
+
 ```
 
 ### Légende
