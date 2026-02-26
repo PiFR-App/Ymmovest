@@ -184,8 +184,11 @@ export function Chatbot() {
       } else if (selectedOption === "async") {
         sendMessageRest();
       }
-      else {
-        alert("Option non implémentée dans ce prototype");
+      else if (selectedOption === "sse") {
+        sendMessageSSE();
+      }
+      else if (selectedOption === "websocket") {
+        sendMessageWebSocket();
       }
     }
   };
