@@ -400,7 +400,6 @@ app.post("/api/admin/users", async (req, res) => {
   }
 
   try {
-    const bcrypt = require('bcrypt');
     const password_hash = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
@@ -430,7 +429,6 @@ app.put("/api/admin/users/:id", async (req, res) => {
     
     if (password) {
       // Si un nouveau mot de passe est fourni, on le hash
-      const bcrypt = require('bcrypt');
       const password_hash = await bcrypt.hash(password, 10);
       
       query = `UPDATE users 
