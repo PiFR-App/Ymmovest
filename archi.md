@@ -105,39 +105,13 @@ volumes:
 
 1. L’utilisateur entre l’adresse ou sélectionne sur une carte
 2. Géocodage → coordonnées
-3. Interrogation DVF+ pour les ventes dans le voisinage
-4. Estimation de prix via modèles
-5. Récupération des taux de crédit via API Banque de France
-6. Saisie des hypothèses utilisateur
-7. Calcul des indicateurs financiers
-8. Affichage des résultats + scénarios
-9. Export rapport PDF (premium)
-10. Gestion des abonnements et quotas
+3. Estimation de prix via modèles
+5. Saisie des hypothèses utilisateur
+6. Calcul des indicateurs financiers
+7. Affichage des résultats + scénarios
 
 ---
 
-## 4. Modèle économique
 
-- **Freemium** : simulations limitées, hypothèses basiques
-- **Abonnement Premium** : accès illimité, scénarios avancés, export PDF, alertes
-- **Vente de rapports personnalisés** : études détaillées, comparatifs
-- **Lead / partenariats B2B** : leads qualifiés pour agences/courtiers
-- **Produits complémentaires** : assurance, gestion, travaux
-
----
-
-## 5. Défis & recommandations techniques
-
-| Défi / risque                                       | Solution ou mitigation recommandée                                                                                                                                                                                                       |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Qualité / granularité des données DVF**           | Tolérer des zones d’incertitude, demander à l’utilisateur de compléter les données manquantes                                                                                                     |
-| **Mise à jour & latence**                           | Indiquer la date de la donnée utilisée, combiner avec d’autres sources plus fraîches                                                                                                              |
-| **Modélisation de l’estimation**                    | Modèles régression, machine learning, calibrage local                                                                                                                                            |
-| **Réglementations & conformité**                    | Vérifier la législation locale (protection des données, DPE, etc.)                                                                                                                               |
-| **Scalabilité & coûts d’API**                       | Limiter les appels, mettre en cache, facturer selon l’usage                                                                                                                                       |
-| **Interface utilisateur / UX complexe**             | Rendre l’interface simple et visuelle malgré la complexité des données                                                                                                                           |
-| **Fiabilité des taux & conditions de crédit réels** | Afficher des marges d’erreur ou des fourchettes selon le profil utilisateur                                                                                                                      |
-
-```
 
 Ce fichier `.md` regroupe l’architecture, les APIs, les modules, le flux, la monétisation et les défis techniques pour ton projet.

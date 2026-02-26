@@ -16,6 +16,7 @@ import {
   Dashboard as DashboardIcon,
   Assessment,
   Description,
+  SmartToy,
 } from "@mui/icons-material";
 import {useNavigate} from "react-router-dom";
 
@@ -105,6 +106,16 @@ export function Header({ darkMode, toggleDarkMode, currentView }: HeaderProps) {
               </Breadcrumbs>
             )}
           </Box>
+
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<SmartToy />}
+            sx={{ textTransform: "none", mr: 2 }}
+            onClick={() => navigate("/chat")}
+          >
+            Assistant
+          </Button>
 
           <Button
             variant="outlined"
