@@ -168,6 +168,14 @@ export function Chatbot() {
     }
   };
 
+  const sendMessageSSE = async () => {
+    alert("Option non implémentée dans ce prototype");
+  };
+
+  const sendMessageWebSocket = async () => {
+    alert("Option non implémentée dans ce prototype");
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -352,8 +360,11 @@ export function Chatbot() {
             } else if (selectedOption === "async") {
               sendMessageRest();
             }
-            else {
-              alert("Option non implémentée dans ce prototype");
+            else if (selectedOption === "sse") {
+              sendMessageSSE();
+            }
+            else if (selectedOption === "websocket") {
+              sendMessageWebSocket();
             }
           }}
           disabled={loading || !input.trim()}
