@@ -1,4 +1,15 @@
 services:
+  chatbot:
+    build: ./chatbot
+    container_name: chatbot_service
+    env_file:
+      - ./.env
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    restart: unless-stopped
+    networks:
+      - app_network
+
   frontend:
     build: ./frontend
     container_name: frontend_service
@@ -17,6 +28,7 @@ services:
     depends_on:
       - frontend
       - backend
+      - chatbot
       - db
     restart: unless-stopped
     networks:
