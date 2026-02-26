@@ -9,8 +9,19 @@ import {
   CircularProgress,
   Chip,
   Stack,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { Send, SmartToy, Person } from "@mui/icons-material";
+
+const MODE_LABELS: Record<string, string> = {
+  async: "REST asynchrone",
+  polling: "REST polling",
+  sse: "HTTP SSE",
+  websocket: "WebSocket",
+};
 
 interface Message {
   role: "user" | "assistant";
@@ -19,6 +30,7 @@ interface Message {
   tokens_used?: number;
   polls?: number;
   task_id?: string;
+  mode?: string;
 }
 
 interface PollStatus {
@@ -34,6 +46,7 @@ export function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [pollStatus, setPollStatus] = useState<PollStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState("async");
   const bottomRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -48,7 +61,37 @@ export function Chatbot() {
     };
   }, []);
 
-  const sendMessage = async () => {
+  const sendMessageRest = async () => {
+    const prompt = input.trim();
+    if (!prompt || loading) return;
+
+    setInput("");
+    setError(null);
+    setMessages((prev) => [...prev, { role: "user", content: prompt }]);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/groq/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail ?? `Erreur ${res.status}`);
+      }
+
+      const data = await res.json();
+      setMessages((prev) => [...prev, { role: "assistant", content: data.response, mode: "async" }]);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendMessageRestPoll = async () => {
     const prompt = input.trim();
     if (!prompt || loading) return;
 
@@ -96,6 +139,7 @@ export function Chatbot() {
                 tokens_used: taskData.tokens_used,
                 polls: pollCount,
                 task_id,
+                mode: "polling",
               },
             ]);
             setPollStatus(null);
@@ -127,7 +171,14 @@ export function Chatbot() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      if (selectedOption === "polling") {
+        sendMessageRestPoll();
+      } else if (selectedOption === "async") {
+        sendMessageRest();
+      }
+      else {
+        alert("Option non implémentée dans ce prototype");
+      }
     }
   };
 
@@ -136,10 +187,27 @@ export function Chatbot() {
       <Typography variant="h4" fontWeight={600} mb={1}>
         Assistant immobilier
       </Typography>
-      <Typography variant="body2" color="text.secondary" mb={3}>
-        Architecture REST asynchrone — le serveur répond immédiatement, le
-        résultat est récupéré par polling toutes les {POLL_INTERVAL_MS} ms.
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+          
+        {/* Dropdown menu du type de requête */}
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel>Architecture</InputLabel>
+          <Select value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)} label="Architecture">
+            <MenuItem value="async">REST asynchrone</MenuItem>
+            <MenuItem value="polling">REST polling</MenuItem>
+            <MenuItem value="sse">HTTP SSE</MenuItem>
+            <MenuItem value="websocket">WebSocket</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: "right" }}>
+          {selectedOption === "async" && `Architecture REST asynchrone — le serveur répond immédiatement`}
+          {selectedOption === "polling" && `Architecture REST polling — requêtes périodiques au serveur, le résultat est récupéré par polling toutes les ${POLL_INTERVAL_MS} ms.`}
+          {selectedOption === "sse" && "Architecture HTTP SSE — streaming server-sent events."}
+          {selectedOption === "websocket" && "Architecture WebSocket — communication bidirectionnelle en temps réel."}
+        </Typography>
+
+      </Box>
 
       {/* Zone de messages */}
       <Paper
@@ -226,11 +294,20 @@ export function Chatbot() {
               </Paper>
             </Box>
 
-            {msg.role === "assistant" && msg.latency_ms !== undefined && (
+            {msg.role === "assistant" && (
               <Stack direction="row" spacing={1} mt={0.5} ml={5} flexWrap="wrap">
-                <Chip label={`Groq : ${msg.latency_ms} ms`} size="small" variant="outlined" />
-                <Chip label={`${msg.tokens_used} tokens`} size="small" variant="outlined" />
-                <Chip label={`${msg.polls} polls`} size="small" variant="outlined" color="primary" />
+                {msg.mode && (
+                  <Chip label={MODE_LABELS[msg.mode] ?? msg.mode} size="small" color="secondary" />
+                )}
+                {msg.latency_ms !== undefined && (
+                  <Chip label={`Groq : ${msg.latency_ms} ms`} size="small" variant="outlined" />
+                )}
+                {msg.tokens_used !== undefined && (
+                  <Chip label={`${msg.tokens_used} tokens`} size="small" variant="outlined" />
+                )}
+                {msg.polls !== undefined && (
+                  <Chip label={`${msg.polls} polls`} size="small" variant="outlined" color="primary" />
+                )}
               </Stack>
             )}
           </Box>
@@ -269,7 +346,16 @@ export function Chatbot() {
           size="small"
         />
         <IconButton
-          onClick={sendMessage}
+          onClick={() => {
+            if (selectedOption === "polling") {
+              sendMessageRestPoll();
+            } else if (selectedOption === "async") {
+              sendMessageRest();
+            }
+            else {
+              alert("Option non implémentée dans ce prototype");
+            }
+          }}
           disabled={loading || !input.trim()}
           sx={{
             bgcolor: "secondary.main",

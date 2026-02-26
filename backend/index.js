@@ -482,6 +482,7 @@ app.delete("/api/admin/users/:id", async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur", error: err.message });
   }
 });
+
 app.use("/api/groq", groqRouter);
 
 
