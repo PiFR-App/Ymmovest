@@ -9,10 +9,11 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const groqRouter = require("./routes/groq");
 
 // Vérifier que les variables d'environnement critiques sont présentes
 if (!process.env.GOOGLE_CLIENT_ID) {
@@ -399,7 +400,6 @@ app.post("/api/admin/users", async (req, res) => {
   }
 
   try {
-    const bcrypt = require('bcrypt');
     const password_hash = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
@@ -429,7 +429,6 @@ app.put("/api/admin/users/:id", async (req, res) => {
     
     if (password) {
       // Si un nouveau mot de passe est fourni, on le hash
-      const bcrypt = require('bcrypt');
       const password_hash = await bcrypt.hash(password, 10);
       
       query = `UPDATE users 
@@ -483,4 +482,6 @@ app.delete("/api/admin/users/:id", async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur", error: err.message });
   }
 });
+app.use("/api/groq", groqRouter);
+
 
