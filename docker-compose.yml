@@ -31,6 +31,7 @@ services:
       - NODE_ENV=${NODE_ENV}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - JWT_SECRET=${JWT_SECRET}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     ports:
       - "5000:5000"
     depends_on:
