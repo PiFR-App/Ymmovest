@@ -13,6 +13,9 @@ const bcrypt = require('bcryptjs');
 
 const { WebSocketServer } = require("ws");
 const { router: groqRouter, streamWithGroq } = require("./routes/groq");
+const chatbotBrokerRouter = require("./routes/chatbot-broker");
+const { connect: connectMessageBroker, sendMessage, QUEUES } = require("./Service/MessageBroker");
+const { startChatbotConsumer, registerWebSocketConnection } = require("./workers/chatbot-consumer");
 
 
 const app = express();
@@ -38,6 +41,14 @@ const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+
+  // Initialise RabbitMQ et lance le consommateur
+  connectMessageBroker()
+    .then(() => startChatbotConsumer())
+    .catch((err) => {
+      console.error("❌ Erreur initialisation MessageBroker:", err.message);
+      // Continue même sans MessageBroker (mode dégradé)
+    });
 });
 
 const wss = new WebSocketServer({ server, path: "/ws/chat" });
@@ -489,12 +500,20 @@ app.delete("/api/admin/users/:id", async (req, res) => {
 });
 
 app.use("/api/groq", groqRouter);
+app.use("/api/chatbot", chatbotBrokerRouter);
 
 // ==============================
 // WebSocket Server
 // ==============================
 wss.on("connection", (ws) => {
-  console.log("🔌 WebSocket client connecté");
+  console.log("\n[🔌 WebSocket] Client connecté");
+
+  // Génère un ID unique pour cette connexion
+  const { v4: uuidv4 } = require("uuid");
+  const wsId = uuidv4();
+
+  // Enregistre la connexion WebSocket
+  registerWebSocketConnection(wsId, ws);
 
   // Historique conversation par connexion
   const conversation = [
@@ -524,6 +543,7 @@ wss.on("connection", (ws) => {
       }
 
       if (!prompt) {
+        console.log("[🔌 WebSocket] Payload invalide");
         ws.send(
           JSON.stringify({
             type: "error",
@@ -533,6 +553,7 @@ wss.on("connection", (ws) => {
         return;
       }
     } catch {
+      console.log("[🔌 WebSocket] JSON invalide");
       ws.send(JSON.stringify({ type: "error", message: "JSON invalide" }));
       return;
     }
@@ -540,25 +561,33 @@ wss.on("connection", (ws) => {
     try {
       conversation.push({ role: "user", content: prompt });
 
-      await streamWithGroq(conversation, (token) => {
-        ws.send(
-          JSON.stringify({
-            type: "stream",
-            token,
-          })
-        );
+      console.log(`[🔌 WebSocket] → Envoi à RabbitMQ (mode: websocket)`);
+      console.log(`[🔌 WebSocket] Prompt: ${prompt.substring(0, 50)}...`);
+
+      // Envoie le message au broker au lieu d'appeler Groq directement
+      const taskId = uuidv4();
+
+      await sendMessage(QUEUES.CHAT_REQUEST, {
+        taskId,
+        prompt,
+        mode: "websocket",
+        wsId, // Important: envoie l'ID WebSocket au worker
+        timestamp: new Date().toISOString(),
       });
 
-      ws.send(JSON.stringify({ type: "done" }));
+      console.log(`[🔌 WebSocket] TaskID: ${taskId}`);
+      console.log(`[✅ MessageBroker] Message envoyé au broker\n`);
+
+      // Le worker va traiter et envoyer les chunks via WebSocket
 
     } catch (error) {
-      console.error("Erreur streaming Groq:", error);
+      console.error("[❌ WebSocket] Erreur:", error.message);
       ws.send(JSON.stringify({ type: "error", message: error.message }));
     }
   });
 
   ws.on("close", () => {
-    console.log("❌ WebSocket client déconnecté");
+    console.log("[❌ WebSocket] Client déconnecté\n");
   });
 });
 

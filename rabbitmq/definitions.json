@@ -1,0 +1,92 @@
+{
+  "rabbit_version": "3.13.0",
+  "rabbitmq_version": "3.13.0",
+  "product_name": "RabbitMQ",
+  "users": [
+    {
+      "name": "guest",
+      "password_hash": "g7O9m9OzLdXiw0OtPGkQl9P4dFaK4hVEMUwc0VvQ9G0=",
+      "hashing_algorithm": "rabbit_password_hashing:default_hash_algo",
+      "tags": ["administrator"],
+      "limits": {}
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "guest",
+      "vhost": "/",
+      "configure": ".*",
+      "read": ".*",
+      "write": ".*"
+    }
+  ],
+  "queues": [
+    {
+      "name": "chat.request",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "chat.response",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 3600000
+      }
+    },
+    {
+      "name": "sse.stream",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 600000
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "chat.exchange",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "chat.exchange",
+      "destination": "chat.request",
+      "destination_type": "queue",
+      "routing_key": "chat.request",
+      "arguments": {}
+    },
+    {
+      "source": "chat.exchange",
+      "destination": "chat.response",
+      "destination_type": "queue",
+      "routing_key": "chat.response",
+      "arguments": {}
+    },
+    {
+      "source": "chat.exchange",
+      "destination": "sse.stream",
+      "destination_type": "queue",
+      "routing_key": "sse.stream",
+      "arguments": {}
+    }
+  ]
+}
+

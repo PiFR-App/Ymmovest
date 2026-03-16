@@ -141,10 +141,10 @@ export function Chatbot() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/groq/chat", {
+      const res = await fetch("/api/chatbot/async", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({ prompt }),
       });
 
       if (!res.ok) {
@@ -153,10 +153,37 @@ export function Chatbot() {
       }
 
       const data = await res.json();
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.response, mode: "async" },
-      ]);
+      console.log("[REST Async Frontend] TaskID:", data.task_id);
+
+      // Récupère la réponse depuis le broker
+      let attempts = 0;
+      const maxAttempts = 60; // 60 tentatives max
+
+      const checkResponse = async () => {
+        attempts++;
+        try {
+          const statusRes = await fetch(`/api/chatbot/tasks/${data.task_id}`);
+          const taskData = await statusRes.json();
+
+          if (taskData.status === "done") {
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: taskData.result, mode: "async" },
+            ]);
+          } else if (taskData.status === "error") {
+            throw new Error(taskData.error ?? "Erreur du serveur");
+          } else if (attempts < maxAttempts) {
+            // Réessaye après 500ms
+            setTimeout(checkResponse, 500);
+          } else {
+            throw new Error("Timeout: réponse non reçue");
+          }
+        } catch (e) {
+          throw e;
+        }
+      };
+
+      await checkResponse();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Erreur inconnue");
     } finally {
@@ -175,7 +202,7 @@ export function Chatbot() {
     setPollStatus({ label: "Soumission en cours…", polls: 0 });
 
     try {
-      const submitRes = await fetch("/api/chat/async", {
+      const submitRes = await fetch("/api/chatbot/async", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -198,7 +225,7 @@ export function Chatbot() {
         });
 
         try {
-          const pollRes = await fetch(`/api/tasks/${task_id}`);
+          const pollRes = await fetch(`/api/chatbot/tasks/${task_id}`);
           const taskData = await pollRes.json();
 
           if (taskData.status === "done") {
@@ -209,8 +236,6 @@ export function Chatbot() {
               {
                 role: "assistant",
                 content: taskData.result,
-                latency_ms: taskData.latency_ms,
-                tokens_used: taskData.tokens_used,
                 polls: pollCount,
                 task_id,
                 mode: "polling",
@@ -263,11 +288,11 @@ export function Chatbot() {
     ]);
 
     try {
-      const res = await fetch("/api/groq/chat-stream", {
+      const res = await fetch("/api/chatbot/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [{ role: "user", content: prompt }],
+          prompt: prompt,
         }),
       });
 
