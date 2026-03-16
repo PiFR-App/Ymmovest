@@ -271,6 +271,8 @@ export function Chatbot() {
         }),
       });
 
+      console.log("[SSE Frontend] Response status:", res.status);
+
       if (!res.ok || !res.body) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.detail ?? `Erreur ${res.status}`);
@@ -279,12 +281,22 @@ export function Chatbot() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let totalChunksReceived = 0;
+      let totalChunksParsed = 0;
+
+      console.log("[SSE Frontend] Début du streaming");
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log(`[SSE Frontend] Stream terminé. Total reçu: ${totalChunksReceived}, parsé: ${totalChunksParsed}`);
+          break;
+        }
 
-        buffer += decoder.decode(value, { stream: true });
+        const decoded = decoder.decode(value, { stream: true });
+        buffer += decoded;
+        totalChunksReceived++;
+
         const lines = buffer.split("\n");
         buffer = lines.pop() ?? "";
 
@@ -293,13 +305,20 @@ export function Chatbot() {
           if (!trimmed.startsWith("data:")) continue;
 
           const raw = trimmed.slice(5).trim();
-          if (!raw || raw === "[DONE]") continue;
+          if (!raw || raw === "[DONE]") {
+            console.log("[SSE Frontend] Signal [DONE] reçu");
+            continue;
+          }
 
           try {
             const parsed = JSON.parse(raw);
             const content = parsed?.content;
+
             // Accepte les chunks avec content (même vide au premier message)
             if (typeof content === "string") {
+              totalChunksParsed++;
+              console.log(`[SSE Frontend] Chunk #${totalChunksParsed}: "${content}"`);
+
               // Cible le message assistant via son id unique
               setMessages((prev) =>
                 prev.map((msg) =>
@@ -309,12 +328,13 @@ export function Chatbot() {
                 )
               );
             }
-          } catch {
-            // Chunk JSON malformé — on ignore
+          } catch (e) {
+            console.log("[SSE Frontend] JSON malformé:", raw);
           }
         }
       }
     } catch (e: unknown) {
+      console.error("[SSE Frontend] Erreur:", e);
       setError(e instanceof Error ? e.message : "Erreur inconnue");
     } finally {
       setLoading(false);

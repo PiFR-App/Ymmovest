@@ -55,15 +55,20 @@ async function streamWithGroq(messages, onToken) {
 
 async function chatWithGroqStream(messages, res, clientClosed) {
     try {
+        console.log("[SSE] Démarrage du stream...");
+
         // Envoie un chunk initial pour indiquer le début du streaming
         res.write(`data: ${JSON.stringify({ role: "assistant", content: "" })}\n\n`);
+        console.log("[SSE] Chunk initial envoyé");
 
         const stream = await groq.chat.completions.create({
             messages,
             model: "llama-3.3-70b-versatile",
             stream: true,
         });
+        console.log("[SSE] Stream créé avec Groq");
 
+        let chunkCount = 0;
         for await (const chunk of stream) {
             // Arrête si le client s'est fermé
             if (clientClosed) {
@@ -74,26 +79,32 @@ async function chatWithGroqStream(messages, res, clientClosed) {
             const delta = chunk.choices[0]?.delta;
             const content = delta?.content;
 
-            console.log("[SSE CHUNK]", JSON.stringify({ content }));
+            console.log(`[SSE CHUNK #${chunkCount}]`, JSON.stringify({ content }));
 
             // N'envoie que les chunks avec contenu
             if (typeof content === "string" && content.length > 0) {
                 res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                chunkCount++;
             }
         }
+
+        console.log(`[SSE] Stream terminé (${chunkCount} chunks envoyés)`);
 
         // Signale la fin du stream
         res.write("data: [DONE]\n\n");
         res.end();
+        console.log("[SSE] Réponse fermée correctement");
     } catch (error) {
-        console.error("[SSE ERROR]", error.message);
-        res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
-        res.end();
+        console.error("[SSE ERROR]", error.message, error.code);
+        if (!res.writableEnded) {
+            res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+            res.end();
+        }
     }
 }
 
-module.exports = { chatWithGroq, chatWithGroqStream };
 module.exports = {
   chatWithGroq,
   streamWithGroq,
+  chatWithGroqStream
 };
