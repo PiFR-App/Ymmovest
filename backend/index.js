@@ -11,9 +11,12 @@ const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+const { WebSocketServer } = require("ws");
+const { router: groqRouter, streamWithGroq } = require("./routes/groq");
+
+
 const app = express();
 const PORT = process.env.PORT || 5000;
-const groqRouter = require("./routes/groq");
 
 // Vérifier que les variables d'environnement critiques sont présentes
 if (!process.env.GOOGLE_CLIENT_ID) {
@@ -30,12 +33,14 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 app.use(express.json());
 app.use(cors());
 const swaggerDocument = YAML.load(path.join(__dirname, 'openapi.yaml'));
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
 
 const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+const wss = new WebSocketServer({ server, path: "/ws/chat" });
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is running" });
@@ -485,4 +490,89 @@ app.delete("/api/admin/users/:id", async (req, res) => {
 
 app.use("/api/groq", groqRouter);
 
+// ==============================
+// WebSocket Server
+// ==============================
+wss.on("connection", (ws) => {
+  console.log("🔌 WebSocket client connecté");
 
+  // Historique conversation par connexion
+  const conversation = [
+    { role: "system", content: "Tu es un assistant expert, précis et concis." },
+  ];
+
+  ws.isAlive = true;
+
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
+
+  ws.on("message", async (raw) => {
+    let prompt;
+
+    try {
+      const data = JSON.parse(raw.toString());
+      if (typeof data.prompt === "string" && data.prompt.trim()) {
+        prompt = data.prompt.trim();
+      } else if (Array.isArray(data.messages) && data.messages.length > 0) {
+        const lastUserMessage = [...data.messages]
+          .reverse()
+          .find((msg) => msg?.role === "user" && typeof msg?.content === "string" && msg.content.trim());
+        if (lastUserMessage) {
+          prompt = lastUserMessage.content.trim();
+        }
+      }
+
+      if (!prompt) {
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: "Payload invalide: attendu { prompt } ou { messages: [{ role, content }] }",
+          })
+        );
+        return;
+      }
+    } catch {
+      ws.send(JSON.stringify({ type: "error", message: "JSON invalide" }));
+      return;
+    }
+
+    try {
+      conversation.push({ role: "user", content: prompt });
+
+      await streamWithGroq(conversation, (token) => {
+        ws.send(
+          JSON.stringify({
+            type: "stream",
+            token,
+          })
+        );
+      });
+
+      ws.send(JSON.stringify({ type: "done" }));
+
+    } catch (error) {
+      console.error("Erreur streaming Groq:", error);
+      ws.send(JSON.stringify({ type: "error", message: error.message }));
+    }
+  });
+
+  ws.on("close", () => {
+    console.log("❌ WebSocket client déconnecté");
+  });
+});
+
+// ==============================
+// Protection heartbeat (anti zombie connections)
+// ==============================
+const interval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (!ws.isAlive) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
+wss.on("close", () => {
+  clearInterval(interval);
+});
