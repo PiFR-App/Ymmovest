@@ -50,16 +50,86 @@ export function Chatbot() {
   const [selectedOption, setSelectedOption] = useState("async");
   const bottomRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading, pollStatus]);
 
+  // Nettoyage du polling et de la websocket si le composant est démonté
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) {
+        wsRef.current.close();
+      }
+      wsRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedOption !== "websocket" && wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+  }, [selectedOption]);
+
+  const getOrCreateWebSocket = () => {
+    if (
+      wsRef.current &&
+      (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)
+    ) {
+      return wsRef.current;
+    }
+
+    const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const ws = new WebSocket(`${wsProtocol}://${window.location.host}/ws/chat`);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "stream") {
+        // Accumule les tokens dans le dernier message assistant en cours.
+        setMessages((prev) => {
+          const updated = [...prev];
+          const lastAssistantIndex = [...updated]
+            .map((msg, idx) => ({ msg, idx }))
+            .reverse()
+            .find(({ msg }) => msg.role === "assistant")?.idx;
+
+          if (lastAssistantIndex === undefined) return updated;
+
+          updated[lastAssistantIndex] = {
+            ...updated[lastAssistantIndex],
+            content: updated[lastAssistantIndex].content + data.token,
+          };
+
+          return updated;
+        });
+      }
+
+      if (data.type === "done") {
+        setLoading(false);
+      }
+
+      if (data.type === "error") {
+        setError(data.message);
+        setLoading(false);
+      }
+    };
+
+    ws.onerror = () => {
+      setError("Erreur WebSocket");
+      setLoading(false);
+    };
+
+    ws.onclose = () => {
+      wsRef.current = null;
+    };
+
+    wsRef.current = ws;
+    return ws;
+  };
 
   const sendMessageRest = async () => {
     const prompt = input.trim();
@@ -251,8 +321,36 @@ export function Chatbot() {
     }
   };
 
-  const sendMessageWebSocket = async () => {
-    alert("Option non implémentée dans ce prototype");
+  const sendMessageWebSocket = () => {
+    const prompt = input.trim();
+    if (!prompt || loading) return;
+  
+    setInput("");
+    setError(null);
+    setLoading(true);
+    setMessages((prev) => [...prev, { role: "user", content: prompt }]);
+  
+    // Ajoute un message assistant vide qui sera rempli token par token
+    setMessages((prev) => [...prev, { role: "assistant", content: "", mode: "websocket" }]);
+  
+    const ws = getOrCreateWebSocket();
+
+    const sendPayload = () => {
+      ws.send(JSON.stringify({ prompt }));
+    };
+
+    if (ws.readyState === WebSocket.OPEN) {
+      sendPayload();
+      return;
+    }
+
+    if (ws.readyState === WebSocket.CONNECTING) {
+      ws.addEventListener("open", sendPayload, { once: true });
+      return;
+    }
+
+    setError("Connexion WebSocket non disponible");
+    setLoading(false);
   };
 
   const handleSend = () => {
