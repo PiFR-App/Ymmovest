@@ -66,5 +66,95 @@ Voici les modules essentiels à prévoir :
     - Express.js
         - Simple et rapide à mettre en place, pas de grosse charge à supporter
 - Orchestration
-    - Docker et docker-compose 
+    - Docker et docker-compose
         - Pour séparer le front et le back dans différents conteneurs, et docker-compose nous servira à lancer ces différents conteneurs plus simplement.
+
+---
+
+## 3. Assistant immobilier (Chatbot IA)
+
+### 3.1. Vue d'ensemble
+
+L'application intègre un assistant IA spécialisé dans l'immobilier, accessible depuis l'interface via un composant dédié. Il repose sur l'API **Groq** (modèle `llama-3.3-70b-versatile`) et propose **4 architectures de communication** sélectionnables à la volée par l'utilisateur.
+
+### 3.2. Stack technique
+
+| Couche | Technologie | Rôle |
+|---|---|---|
+| **Service IA** | FastAPI (Python) | Expose les architectures REST synchrone et asynchrone/polling |
+| **Backend principal** | Express.js (Node.js) | Expose les architectures SSE et WebSocket, proxy vers Groq |
+| **LLM** | Groq API — `llama-3.3-70b-versatile` | Génération de texte, streaming token par token |
+| **Frontend** | React / TypeScript + MUI | Interface chat, sélection d'architecture, affichage des métriques |
+
+### 3.3. Architectures de communication
+
+#### Architecture 1 — REST Synchrone
+
+- **Endpoint** : `POST /api/groq/chat`
+- **Fonctionnement** : la requête attend la réponse complète de Groq avant de renvoyer le JSON. Simple et sans état.
+- **Quand l'utiliser** : réponses courtes, latence acceptable, client HTTP standard.
+
+```
+Client ──POST /api/groq/chat──► Backend ──► Groq API
+Client ◄──── JSON { response } ────────────────────
+```
+
+---
+
+#### Architecture 2 — REST Asynchrone + Polling
+
+- **Endpoints** :
+  - `POST /api/chat/async` → retourne immédiatement un `task_id` (HTTP 202)
+  - `GET /api/tasks/{task_id}` → interrogé périodiquement (toutes les 1 500 ms) pour récupérer le résultat
+- **Fonctionnement** : le service Python (FastAPI) lance le traitement Groq dans un thread daemon et stocke le résultat en mémoire. Le client interroge régulièrement jusqu'à obtenir `status: "done"`.
+- **Quand l'utiliser** : découpler soumission et récupération, tolérance à la latence réseau.
+
+```
+Client ──POST /api/chat/async──► FastAPI ──► thread Groq
+Client ◄── { task_id } ─────────────────────────────────
+
+Client ──GET /api/tasks/{id}──► FastAPI (polling toutes les 1.5s)
+Client ◄── { status: "done", result } ──────────────────
+```
+
+---
+
+#### Architecture 3 — HTTP SSE (Server-Sent Events)
+
+- **Endpoint** : `POST /api/groq/chat-stream`
+- **Fonctionnement** : le backend Express ouvre une connexion SSE (`Content-Type: text/event-stream`) et envoie les tokens Groq au fur et à mesure (`data: { content }\n\n`). La réponse s'affiche progressivement côté client via `ReadableStream`.
+- **Quand l'utiliser** : streaming unidirectionnel serveur → client, affichage progressif de la réponse.
+
+```
+Client ──POST /api/groq/chat-stream──► Backend
+Client ◄── data: { content: "token1" } ──────── (SSE stream)
+Client ◄── data: { content: "token2" } ────────
+Client ◄── data: [DONE] ───────────────────────
+```
+
+---
+
+#### Architecture 4 — WebSocket
+
+- **Endpoint** : `ws(s)://{host}/ws/chat`
+- **Fonctionnement** : connexion WebSocket persistante établie au premier message. Le backend maintient un historique de conversation par connexion (messages `system` + `user` + `assistant` accumulés). Chaque token Groq est pushé en temps réel via `{ type: "stream", token }`. Un heartbeat (ping/pong toutes les 30 s) évite les connexions zombies.
+- **Quand l'utiliser** : communication bidirectionnelle, contexte de conversation multi-tours, latence minimale.
+
+```
+Client ──WS connect──────────────────────► Backend (connexion persistante)
+Client ──{ prompt: "..." }───────────────►
+Client ◄── { type: "stream", token: "…" } (token par token)
+Client ◄── { type: "done" }
+Client ──{ prompt: "suite…" }────────────► (même connexion, contexte conservé)
+```
+
+### 3.4. Métriques affichées
+
+Chaque réponse de l'assistant affiche des indicateurs contextuels :
+
+| Indicateur | Architectures concernées | Description |
+|---|---|---|
+| `latency_ms` | REST synchrone, Polling | Durée de l'appel Groq en ms |
+| `tokens_used` | REST synchrone, Polling | Nombre total de tokens consommés |
+| `polls` | Polling | Nombre d'appels de polling nécessaires |
+| Étiquette d'architecture | Toutes | Badge indiquant le mode utilisé |
